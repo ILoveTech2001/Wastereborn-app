@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:title="Home"
+        android:icon="@drawable/ic_home" />
+
+    <item
+        android:id="@+id/nav_pickup"
+        android:title="Waste Pickup"
+        android:icon="@drawable/ic_pickup" />
+
+    <item
+        android:id="@+id/nav_marketplace"
+        android:title="Marketplace"
+        android:icon="@drawable/ic_marketplace" />
+
+    <item
+        android:id="@+id/nav_orders"
+        android:title="My Orders"
+        android:icon="@drawable/ic_order" />
+
+    <item
+        android:id="@+id/nav_rewards"
+        android:title="Reward Points"
+        android:icon="@drawable/reward" />
+
+    <item
+        android:id="@+id/nav_history"
+        android:title="History"
+        android:icon="@drawable/ic_history" />
+
+    <item
+        android:id="@+id/nav_notifications"
+        android:title="Notifications"
+        android:icon="@drawable/ic_notification" />
+
+    <item
+        android:id="@+id/nav_chatbot"
+        android:title="Chatbot"
+        android:icon="@drawable/ic_chat_bot" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Logout"
+        android:icon="@drawable/ic_logout" />
+
+</menu>

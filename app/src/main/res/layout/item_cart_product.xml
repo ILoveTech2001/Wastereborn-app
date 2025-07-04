@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="#F8F8F8"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="8dp">
+
+    <!-- Product Name and Price -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/text_cart_product_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/text_cart_product_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FCFA 2000"
+            android:textColor="#666"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Quantity control (optional for now) -->
+    <TextView
+        android:id="@+id/text_cart_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="x1"
+        android:layout_marginEnd="12dp"
+        android:textSize="14sp"
+        android:textColor="#000" />
+
+    <!-- Remove button -->
+    <ImageButton
+        android:id="@+id/btn_remove_from_cart"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Remove"
+        app:tint="@android:color/holo_red_dark" />
+</LinearLayout>

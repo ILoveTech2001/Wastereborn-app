@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_cart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical" />
+
+    <TextView
+        android:id="@+id/text_total_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Subtotal:"
+        android:textStyle="bold"
+        android:paddingTop="8dp" />
+
+    <TextView
+        android:id="@+id/text_delivery_fee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delivery Fee:"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/text_final_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total:"
+        android:textStyle="bold"
+        android:paddingTop="4dp"
+        android:textColor="#2E7D32" />
+
+    <Button
+        android:id="@+id/btn_checkout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Proceed to Checkout"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="12dp"
+        android:padding="12dp" />
+
+</LinearLayout>
