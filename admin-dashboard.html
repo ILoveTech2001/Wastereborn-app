@@ -569,6 +569,90 @@
             background: #3182ce;
         }
 
+        /* Image Upload Styles */
+        .image-upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: #f7fafc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .image-upload-area:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+
+        .image-upload-area.dragover {
+            border-color: #48bb78;
+            background: #f0fff4;
+            transform: scale(1.02);
+        }
+
+        .upload-content {
+            pointer-events: none;
+        }
+
+        .btn-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-upload:hover {
+            background: #38a169;
+        }
+
+        .btn-remove {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-remove:hover {
+            background: #e53e3e;
+        }
+
+        .file-name {
+            color: #666;
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+
+        .image-preview {
+            margin-top: 0.5rem;
+            padding: 1rem;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            background: #f7fafc;
+        }
+
+        .image-preview img {
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -1720,8 +1804,31 @@
                             <input type="number" name="stockQuantity" min="0" required>
                         </div>
                         <div class="form-group">
-                            <label>Image URL:</label>
-                            <input type="url" name="imageUrl" placeholder="https://example.com/image.jpg">
+                            <label>Product Image:</label>
+                            <div class="image-upload-area" id="imageUploadArea">
+                                <input type="file" id="productImage" name="productImage" accept="image/*" style="display: none;">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #4299e1; margin-bottom: 0.5rem;"></i>
+                                    <p style="margin: 0.5rem 0; color: #4a5568;">
+                                        <strong>Click to choose</strong> or drag and drop an image here
+                                    </p>
+                                    <button type="button" class="btn-upload" onclick="document.getElementById('productImage').click()">
+                                        <i class="fas fa-camera"></i> Choose Image
+                                    </button>
+                                    <p style="margin: 0.5rem 0; font-size: 0.875rem; color: #666;">
+                                        Supported: JPG, PNG, GIF (Max: 5MB)
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="imagePreview" class="image-preview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                                <div style="margin-top: 0.5rem;">
+                                    <span id="fileName" class="file-name" style="color: #48bb78; font-weight: 500;"></span>
+                                    <button type="button" class="btn-remove" onclick="removeImage()">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>
@@ -1742,9 +1849,22 @@
             `;
             document.body.appendChild(modal);
 
+            // Add file input change listener for image preview
+            document.getElementById('productImage').addEventListener('change', handleImageSelection);
+
+            // Add drag and drop functionality
+            setupDragAndDrop();
+
             document.getElementById('addProductForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
+
+                // Handle image upload
+                let imageUrl = null;
+                const imageFile = document.getElementById('productImage').files[0];
+                if (imageFile) {
+                    imageUrl = await uploadImageToBase64(imageFile);
+                }
 
                 const productData = {
                     name: formData.get('name'),
@@ -1753,7 +1873,7 @@
                     price: parseFloat(formData.get('price')),
                     pointsPrice: parseInt(formData.get('pointsPrice')) || 0,
                     stockQuantity: parseInt(formData.get('stockQuantity')),
-                    imageUrl: formData.get('imageUrl') || null,
+                    imageUrl: imageUrl,
                     isAvailable: formData.has('isAvailable'),
                     isPointsRedeemable: formData.has('isPointsRedeemable')
                 };
@@ -1851,6 +1971,121 @@
 
         function editProduct(productId) {
             alert(`Edit product functionality coming soon for product #${productId}`);
+        }
+
+        // Image handling functions
+        function handleImageSelection(event) {
+            const file = event.target.files[0];
+            const fileName = document.getElementById('fileName');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select a valid image file (JPG, PNG, GIF)');
+                    event.target.value = '';
+                    return;
+                }
+
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size must be less than 5MB');
+                    event.target.value = '';
+                    return;
+                }
+
+                // Update file name display
+                fileName.textContent = file.name;
+                fileName.style.color = '#48bb78';
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = 'No file selected';
+                fileName.style.color = '#666';
+                imagePreview.style.display = 'none';
+            }
+        }
+
+        function removeImage() {
+            const fileInput = document.getElementById('productImage');
+            const fileName = document.getElementById('fileName');
+            const imagePreview = document.getElementById('imagePreview');
+
+            fileInput.value = '';
+            fileName.textContent = 'No file selected';
+            fileName.style.color = '#666';
+            imagePreview.style.display = 'none';
+        }
+
+        async function uploadImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function(error) {
+                    reject(error);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('imageUploadArea');
+            const fileInput = document.getElementById('productImage');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            // Handle dropped files
+            uploadArea.addEventListener('drop', handleDrop, false);
+
+            // Handle click to open file dialog
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function highlight(e) {
+                uploadArea.classList.add('dragover');
+            }
+
+            function unhighlight(e) {
+                uploadArea.classList.remove('dragover');
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleImageSelection({ target: { files: files } });
+                }
+            }
         }
 
         function showSendNotificationModal() {
