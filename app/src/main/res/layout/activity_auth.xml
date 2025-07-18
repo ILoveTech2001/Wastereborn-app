@@ -3,119 +3,281 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/auth_gradient_background">
+    android:background="@drawable/welcome_background_pattern">
 
-    <!-- Welcome Section -->
+    <!-- Top Decorative Section -->
+    <LinearLayout
+        android:id="@+id/top_decoration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="60dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:alpha="0.3">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:background="@color/auth_card_background"
+            android:layout_marginEnd="8dp" />
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="4dp"
+            android:background="@color/auth_card_background"
+            android:layout_marginEnd="8dp" />
+
+        <View
+            android:layout_width="60dp"
+            android:layout_height="4dp"
+            android:background="@color/auth_card_background" />
+
+    </LinearLayout>
+
+    <!-- Main Welcome Section -->
     <LinearLayout
         android:id="@+id/welcome_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginTop="-100dp"
+        android:layout_marginTop="-80dp"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="32dp">
+        android:padding="40dp">
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/ic_wastereborn_logo"
-            android:layout_marginBottom="16dp" />
+        <!-- Recycling Logo with Glow Effect -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
 
+            <!-- Glow background -->
+            <View
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_background"
+                android:alpha="0.2" />
+
+            <!-- Main logo -->
+            <ImageView
+                android:id="@+id/recycling_logo"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_recycling_logo"
+                android:contentDescription="Recycling Logo" />
+
+        </FrameLayout>
+
+        <!-- App Name with Style -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="WASTEREBORN"
             android:textColor="@color/auth_card_background"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:letterSpacing="0.1"
+            android:letterSpacing="0.15"
             android:fontFamily="sans-serif-medium"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="12dp"
+            android:shadowColor="#40000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
 
+        <!-- Welcome Message -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome Back"
+            android:text="Turn Waste Into Wonder"
             android:textColor="@color/auth_card_background"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
-            android:layout_marginBottom="32dp" />
+            android:textSize="18sp"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-light"
+            android:layout_marginBottom="8dp"
+            android:alpha="0.9" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="♻️ Recycle • Earn • Shop • Repeat"
+            android:textColor="@color/auth_card_background"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif"
+            android:layout_marginBottom="40dp"
+            android:alpha="0.8"
+            android:gravity="center" />
 
     </LinearLayout>
 
-    <!-- Bottom Buttons Section -->
+    <!-- Bottom Action Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="50dp"
         android:orientation="vertical"
         android:gravity="center">
 
-        <!-- Sign In Button -->
-        <Button
-            android:id="@+id/btn_sign_in"
+        <!-- Action Buttons Container -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="SIGN IN"
-            android:textColor="@color/auth_text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:background="@drawable/auth_card_background"
-            android:layout_marginBottom="16dp"
-            android:elevation="4dp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="32dp">
 
-        <!-- Sign Up Button -->
-        <Button
-            android:id="@+id/btn_sign_up"
+            <!-- Sign In Button -->
+            <Button
+                android:id="@+id/btn_sign_in"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="SIGN IN"
+                android:textColor="@color/auth_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/welcome_button_primary"
+                android:layout_marginBottom="16dp"
+                android:elevation="6dp"
+                android:stateListAnimator="@null" />
+
+            <!-- Sign Up Button -->
+            <Button
+                android:id="@+id/btn_sign_up"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="SIGN UP"
+                android:textColor="@color/auth_card_background"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:background="@drawable/welcome_button_secondary"
+                android:layout_marginBottom="24dp"
+                android:elevation="4dp"
+                android:stateListAnimator="@null" />
+
+        </LinearLayout>
+
+        <!-- Features Preview -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="SIGN UP"
-            android:textColor="@color/auth_button_text"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:background="@drawable/auth_button_background"
-            android:layout_marginBottom="24dp"
-            android:elevation="2dp" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
 
-        <!-- Social Media Login -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🚛"
+                    android:textSize="24sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pickup"
+                    android:textColor="@color/auth_card_background"
+                    android:textSize="12sp"
+                    android:alpha="0.8" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎁"
+                    android:textSize="24sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rewards"
+                    android:textColor="@color/auth_card_background"
+                    android:textSize="12sp"
+                    android:alpha="0.8" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🛒"
+                    android:textSize="24sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Shop"
+                    android:textColor="@color/auth_card_background"
+                    android:textSize="12sp"
+                    android:alpha="0.8" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🌱"
+                    android:textSize="24sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Impact"
+                    android:textColor="@color/auth_card_background"
+                    android:textSize="12sp"
+                    android:alpha="0.8" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- App Version -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login with Social Media"
+            android:text="v1.0 • Made with 💚 for the Planet"
             android:textColor="@color/auth_card_background"
-            android:textSize="14sp"
-            android:layout_marginBottom="16dp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <!-- Social media icons would go here -->
-            <View
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/circle_background"
-                android:layout_marginEnd="16dp" />
-
-            <View
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/circle_background"
-                android:layout_marginEnd="16dp" />
-
-            <View
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/circle_background" />
-
-        </LinearLayout>
+            android:textSize="12sp"
+            android:alpha="0.6"
+            android:gravity="center" />
 
     </LinearLayout>
 

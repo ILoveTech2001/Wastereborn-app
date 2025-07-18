@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Base gradient -->
+    <item>
+        <shape>
+            <gradient
+                android:startColor="@color/auth_gradient_start"
+                android:endColor="@color/auth_gradient_end"
+                android:angle="135" />
+        </shape>
+    </item>
+    
+    <!-- Decorative circles -->
+    <item android:top="50dp" android:left="20dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/auth_card_background" />
+            <size android:width="30dp" android:height="30dp" />
+        </shape>
+    </item>
+    
+    <item android:top="150dp" android:right="30dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/auth_card_background" />
+            <size android:width="20dp" android:height="20dp" />
+        </shape>
+    </item>
+    
+    <item android:bottom="200dp" android:left="50dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/auth_card_background" />
+            <size android:width="25dp" android:height="25dp" />
+        </shape>
+    </item>
+    
+    <item android:bottom="100dp" android:right="20dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/auth_card_background" />
+            <size android:width="15dp" android:height="15dp" />
+        </shape>
+    </item>
+    
+    <!-- Overlay for depth -->
+    <item>
+        <shape>
+            <gradient
+                android:startColor="@android:color/transparent"
+                android:endColor="#20000000"
+                android:angle="90" />
+        </shape>
+    </item>
+    
+</layer-list>

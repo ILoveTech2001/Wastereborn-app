@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/primary_green_dark" />
+            <corners android:radius="28dp" />
+            <stroke android:width="2dp" android:color="@color/auth_card_background" />
+        </shape>
+    </item>
+    
+    <!-- Normal state -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/auth_card_background" />
+            <corners android:radius="28dp" />
+            <stroke android:width="2dp" android:color="@color/auth_card_background" />
+        </shape>
+    </item>
+    
+</selector>
