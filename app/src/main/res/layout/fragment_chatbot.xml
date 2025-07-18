@@ -1,38 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/white">
+    android:background="#F8F9FA">
 
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/chat_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/primary_green"
+        android:elevation="4dp"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_wastereborn_logo"
+            android:background="@drawable/circle_background"
+            android:padding="8dp"
+            android:layout_marginEnd="12dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WasteBot"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/bot_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Online • Ready to help"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:alpha="0.9" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_clear_chat"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:tint="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- Chat Messages -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_chat"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/chat_header"
+        android:layout_above="@id/input_container"
+        android:padding="8dp"
+        android:clipToPadding="false" />
 
+    <!-- Typing Indicator -->
     <LinearLayout
+        android:id="@+id/typing_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/input_container"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/chat_bubble_bot"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WasteBot is typing..."
+            android:textColor="@color/auth_text_secondary"
+            android:textSize="14sp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
+    <!-- Input Container -->
+    <LinearLayout
+        android:id="@+id/input_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:elevation="8dp"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="12dp">
 
+        <!-- Quick Actions -->
+        <LinearLayout
+            android:id="@+id/quick_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btn_quick_pickup"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:background="@drawable/auth_edittext_background"
+                android:text="📅 Pickup"
+                android:textSize="12sp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btn_quick_points"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:background="@drawable/auth_edittext_background"
+                android:text="🎁 Points"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- Message Input -->
         <EditText
             android:id="@+id/edit_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Type your message..."
-            android:padding="12dp" />
+            android:background="@drawable/auth_edittext_background"
+            android:hint="Ask me anything about waste management..."
+            android:maxLines="3"
+            android:padding="12dp"
+            android:textSize="16sp" />
 
-        <Button
+        <!-- Send Button -->
+        <ImageView
             android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
-            android:layout_marginStart="8dp" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/auth_button_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_menu_send"
+            android:tint="@android:color/white" />
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

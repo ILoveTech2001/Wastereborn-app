@@ -1,11 +1,15 @@
 package com.example.wastereborn.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.wastereborn.R;
+import com.example.wastereborn.adapter.ChatAdapter;
+import com.example.wastereborn.chatbot.WasteBotEngine;
+import com.example.wastereborn.model.ChatMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +31,14 @@ public class ChatbotFragment extends Fragment {
 
     private RecyclerView recyclerChat;
     private EditText editMessage;
-    private Button btnSend;
+    private ImageView btnSend, btnClearChat;
+    private Button btnQuickPickup, btnQuickPoints;
+    private LinearLayout typingIndicator, quickActions;
+    private TextView botStatus;
     private ChatAdapter chatAdapter;
     private List<ChatMessage> chatMessages;
+    private WasteBotEngine wasteBotEngine;
+    private Handler handler;
 
     public ChatbotFragment() {}
 
@@ -35,25 +47,67 @@ public class ChatbotFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chatbot, container, false);
 
-        // Initialize views
+        // Initialize components
+        initializeViews(view);
+        setupRecyclerView();
+        setupClickListeners();
+
+        // Initialize bot engine
+        wasteBotEngine = new WasteBotEngine(getContext());
+        handler = new Handler(Looper.getMainLooper());
+
+        // Add welcome messages
+        addWelcomeMessages();
+
+        return view;
+    }
+
+    private void initializeViews(View view) {
         recyclerChat = view.findViewById(R.id.recycler_chat);
         editMessage = view.findViewById(R.id.edit_message);
         btnSend = view.findViewById(R.id.btn_send);
+        btnClearChat = view.findViewById(R.id.btn_clear_chat);
+        btnQuickPickup = view.findViewById(R.id.btn_quick_pickup);
+        btnQuickPoints = view.findViewById(R.id.btn_quick_points);
+        typingIndicator = view.findViewById(R.id.typing_indicator);
+        quickActions = view.findViewById(R.id.quick_actions);
+        botStatus = view.findViewById(R.id.bot_status);
+    }
 
-        // Setup RecyclerView
-        recyclerChat.setLayoutManager(new LinearLayoutManager(getContext()));
+    private void setupRecyclerView() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setStackFromEnd(true);
+        recyclerChat.setLayoutManager(layoutManager);
+
         chatMessages = new ArrayList<>();
         chatAdapter = new ChatAdapter(chatMessages);
         recyclerChat.setAdapter(chatAdapter);
+    }
 
-        // Add welcome message
-        addBotMessage("Hello! I'm WasteBot, your eco-friendly assistant. How can I help you today?");
-        addBotMessage("You can ask me about:\n• Waste pickup schedules\n• Recycling tips\n• Product information\n• Points system\n• How to use the app");
-
-        // Setup send button
+    private void setupClickListeners() {
         btnSend.setOnClickListener(v -> sendMessage());
+        btnClearChat.setOnClickListener(v -> clearChat());
+        btnQuickPickup.setOnClickListener(v -> sendQuickMessage("How do I schedule a pickup?"));
+        btnQuickPoints.setOnClickListener(v -> sendQuickMessage("Tell me about the points system"));
 
-        return view;
+        // Show quick actions when input is focused
+        editMessage.setOnFocusChangeListener((v, hasFocus) -> {
+            quickActions.setVisibility(hasFocus && chatMessages.size() > 2 ? View.VISIBLE : View.GONE);
+        });
+    }
+
+    private void addWelcomeMessages() {
+        addBotMessage("Hello! I'm WasteBot 🤖, your eco-friendly assistant!");
+
+        handler.postDelayed(() -> {
+            addBotMessage("I'm here to help you with:\n" +
+                    "🚛 Waste pickup scheduling\n" +
+                    "🎁 Points and rewards\n" +
+                    "🛒 Recycled products\n" +
+                    "♻️ Recycling tips\n" +
+                    "📱 App guidance\n\n" +
+                    "What would you like to know? 😊");
+        }, 1000);
     }
 
     private void sendMessage() {
@@ -62,103 +116,80 @@ public class ChatbotFragment extends Fragment {
             return;
         }
 
+        sendUserMessage(message);
+    }
+
+    private void sendQuickMessage(String message) {
+        editMessage.setText(message);
+        sendMessage();
+    }
+
+    private void sendUserMessage(String message) {
         // Add user message
         addUserMessage(message);
         editMessage.setText("");
+        quickActions.setVisibility(View.GONE);
 
-        // Generate bot response
-        String response = generateBotResponse(message.toLowerCase());
-        addBotMessage(response);
+        // Show typing indicator
+        showTypingIndicator();
 
-        // Scroll to bottom
-        recyclerChat.scrollToPosition(chatMessages.size() - 1);
+        // Generate bot response with delay for realism
+        handler.postDelayed(() -> {
+            hideTypingIndicator();
+            String response = wasteBotEngine.generateResponse(message);
+            addBotMessage(response);
+            scrollToBottom();
+        }, 1000 + (int)(Math.random() * 1000)); // 1-2 second delay
     }
 
-    private String generateBotResponse(String userMessage) {
-        if (userMessage.contains("pickup") || userMessage.contains("schedule")) {
-            return "To schedule a waste pickup:\n1. Go to the Pickup tab\n2. Select your waste type\n3. Choose your street\n4. Pick an available time slot\n5. Confirm your request\n\nYou'll earn 5 points for each completed pickup!";
-        } else if (userMessage.contains("points") || userMessage.contains("reward")) {
-            return "Our points system works like this:\n• Earn 5 points per completed pickup\n• Redeem points for eco-friendly products\n• Check your balance in the Rewards tab\n• 100 points = Premium rewards!";
-        } else if (userMessage.contains("product") || userMessage.contains("shop") || userMessage.contains("buy")) {
-            return "Browse our marketplace for amazing recycled products!\n• Eco-friendly bags\n• Recycled furniture\n• Solar chargers\n• And much more!\n\nYou can pay with mobile money or use your points.";
-        } else if (userMessage.contains("recycle") || userMessage.contains("waste")) {
-            return "Great recycling tips:\n• Separate plastic, paper, and glass\n• Clean containers before disposal\n• Remove labels when possible\n• Electronics need special handling\n\nEvery small action helps our planet! 🌱";
-        } else if (userMessage.contains("help") || userMessage.contains("how")) {
-            return "I'm here to help! You can:\n• Book waste pickups\n• Shop recycled products\n• Track your orders\n• Earn and redeem points\n• View your recycling stats\n\nWhat would you like to know more about?";
-        } else if (userMessage.contains("hello") || userMessage.contains("hi")) {
-            return "Hello there! 👋 Welcome to WasteReborn! I'm excited to help you on your eco-friendly journey. What can I assist you with today?";
-        } else if (userMessage.contains("thank")) {
-            return "You're very welcome! 😊 Thank you for choosing WasteReborn and helping make our planet greener. Is there anything else I can help you with?";
-        } else {
-            return "I understand you're asking about: \"" + userMessage + "\"\n\nI'm still learning! For now, I can help with:\n• Waste pickup scheduling\n• Points and rewards\n• Product information\n• Recycling tips\n\nTry asking about one of these topics!";
+    private void showTypingIndicator() {
+        typingIndicator.setVisibility(View.VISIBLE);
+        botStatus.setText("Typing...");
+        scrollToBottom();
+    }
+
+    private void hideTypingIndicator() {
+        typingIndicator.setVisibility(View.GONE);
+        botStatus.setText("Online • Ready to help");
+    }
+
+    private void scrollToBottom() {
+        if (chatMessages.size() > 0) {
+            recyclerChat.smoothScrollToPosition(chatMessages.size() - 1);
         }
     }
 
+    private void clearChat() {
+        chatMessages.clear();
+        chatAdapter.notifyDataSetChanged();
+        wasteBotEngine.clearContext();
+
+        // Add fresh welcome message
+        handler.postDelayed(() -> {
+            addBotMessage("Chat cleared! 🧹\nHow can I help you today?");
+        }, 500);
+
+        Toast.makeText(getContext(), "Chat cleared", Toast.LENGTH_SHORT).show();
+    }
+
     private void addUserMessage(String message) {
-        chatMessages.add(new ChatMessage(message, true));
+        ChatMessage chatMessage = new ChatMessage(message, true);
+        chatMessages.add(chatMessage);
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
     }
 
     private void addBotMessage(String message) {
-        chatMessages.add(new ChatMessage(message, false));
+        ChatMessage chatMessage = new ChatMessage(message, false);
+        chatMessages.add(chatMessage);
         chatAdapter.notifyItemInserted(chatMessages.size() - 1);
     }
 
-    // Simple ChatMessage class
-    public static class ChatMessage {
-        public String message;
-        public boolean isUser;
-
-        public ChatMessage(String message, boolean isUser) {
-            this.message = message;
-            this.isUser = isUser;
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
         }
     }
 
-    // Simple ChatAdapter class
-    public static class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
-        private List<ChatMessage> messages;
-
-        public ChatAdapter(List<ChatMessage> messages) {
-            this.messages = messages;
-        }
-
-        @NonNull
-        @Override
-        public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1, parent, false);
-            return new ChatViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-            ChatMessage message = messages.get(position);
-            String prefix = message.isUser ? "You: " : "WasteBot: ";
-            holder.textMessage.setText(prefix + message.message);
-
-            // Style differently for user vs bot
-            if (message.isUser) {
-                holder.textMessage.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
-                holder.textMessage.setBackgroundColor(0xFFE8F5E8);
-            } else {
-                holder.textMessage.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-                holder.textMessage.setBackgroundColor(0xFFF0F8FF);
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return messages.size();
-        }
-
-        static class ChatViewHolder extends RecyclerView.ViewHolder {
-            TextView textMessage;
-
-            ChatViewHolder(View itemView) {
-                super(itemView);
-                textMessage = itemView.findViewById(android.R.id.text1);
-            }
-        }
-    }
 }

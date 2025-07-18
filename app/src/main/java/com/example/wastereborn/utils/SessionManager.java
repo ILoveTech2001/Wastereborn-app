@@ -105,7 +105,11 @@ public class SessionManager {
         String lastName = pref.getString(KEY_LAST_NAME, "");
         return (firstName + " " + lastName).trim();
     }
-    
+
+    public String getUserEmail() {
+        return pref.getString(KEY_EMAIL, "");
+    }
+
     public String getUserInitial() {
         String firstName = pref.getString(KEY_FIRST_NAME, "");
         return firstName.isEmpty() ? "U" : firstName.substring(0, 1).toUpperCase();
