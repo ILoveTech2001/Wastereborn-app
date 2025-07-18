@@ -541,6 +541,34 @@
             color: white;
         }
 
+        .status-select {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-buttons {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-buttons .btn {
+            padding: 0.5rem 1rem;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .action-buttons .btn:hover {
+            background: #3182ce;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -715,6 +743,14 @@
                 <h2 class="section-title">
                     <i class="fas fa-truck"></i> Pickup Management
                 </h2>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showAddProductModal()">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                    <button class="btn" onclick="loadProducts()">
+                        <i class="fas fa-refresh"></i> Refresh
+                    </button>
+                </div>
                 <div class="table-container">
                     <div id="pickupsTable" class="loading">Loading pickups...</div>
                 </div>
@@ -921,7 +957,7 @@
                 const [usersResponse, ordersResponse, pickupsResponse] = await Promise.all([
                     fetch(`${API_BASE}/admin/users`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
                     fetch(`${API_BASE}/admin/orders`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
-                    fetch(`${API_BASE}/pickups/admin/all`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+                    fetch(`${API_BASE}/admin/pickups`, { headers: { 'Authorization': `Bearer ${authToken}` } })
                 ]);
 
                 if (usersResponse.ok) {
@@ -1103,7 +1139,7 @@
         async function loadPickups() {
             const container = document.getElementById('pickupsTable');
             try {
-                const response = await fetch(`${API_BASE}/pickups/admin/all`, {
+                const response = await fetch(`${API_BASE}/admin/pickups`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
 
@@ -1288,11 +1324,158 @@
         }
 
         function displayPickupsTable(pickups) {
-            document.getElementById('pickupsTable').innerHTML = '<p>Pickups table implementation coming soon...</p>';
+            const container = document.getElementById('pickupsTable');
+            if (!pickups || pickups.length === 0) {
+                container.innerHTML = '<p>No pickup requests found</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Address</th>
+                            <th>Waste Type</th>
+                            <th>Preferred Date</th>
+                            <th>Status</th>
+                            <th>Assigned Driver</th>
+                            <th>Points</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${pickups.map(pickup => `
+                            <tr>
+                                <td>#${pickup.id}</td>
+                                <td>${pickup.user ? pickup.user.firstName + ' ' + pickup.user.lastName : 'N/A'}</td>
+                                <td>${pickup.pickupAddress}<br><small>${pickup.pickupStreet || ''} ${pickup.pickupCity || ''}</small></td>
+                                <td><span class="badge badge-info">${pickup.wasteType || 'General'}</span></td>
+                                <td>${pickup.preferredPickupDate ? new Date(pickup.preferredPickupDate).toLocaleDateString() : 'N/A'}</td>
+                                <td><span class="badge badge-${getPickupStatusBadge(pickup.status)}">${pickup.status}</span></td>
+                                <td>${pickup.assignedDriver ? pickup.assignedDriver.name : 'Unassigned'}</td>
+                                <td>${pickup.pointsAwarded || 0} pts</td>
+                                <td>
+                                    <select onchange="updatePickupStatus(${pickup.id}, this.value)" class="status-select">
+                                        <option value="">Change Status</option>
+                                        <option value="PENDING" ${pickup.status === 'PENDING' ? 'selected' : ''}>Pending</option>
+                                        <option value="SCHEDULED" ${pickup.status === 'SCHEDULED' ? 'selected' : ''}>Scheduled</option>
+                                        <option value="IN_PROGRESS" ${pickup.status === 'IN_PROGRESS' ? 'selected' : ''}>In Progress</option>
+                                        <option value="COMPLETED" ${pickup.status === 'COMPLETED' ? 'selected' : ''}>Completed</option>
+                                        <option value="CANCELLED" ${pickup.status === 'CANCELLED' ? 'selected' : ''}>Cancelled</option>
+                                    </select>
+                                    <button class="btn-small btn-info" onclick="viewPickupDetails(${pickup.id})">View</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function getPickupStatusBadge(status) {
+            switch(status) {
+                case 'PENDING': return 'warning';
+                case 'SCHEDULED': return 'info';
+                case 'IN_PROGRESS': return 'primary';
+                case 'COMPLETED': return 'success';
+                case 'CANCELLED': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        async function updatePickupStatus(pickupId, newStatus) {
+            if (!newStatus) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/pickups/admin/${pickupId}/status?status=${newStatus}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    alert('Pickup status updated successfully!');
+                    loadPickups(); // Reload the table
+                } else {
+                    alert('Failed to update pickup status');
+                }
+            } catch (error) {
+                alert('Error updating pickup status');
+            }
+        }
+
+        function viewPickupDetails(pickupId) {
+            // Implementation for viewing pickup details
+            alert(`Viewing details for pickup #${pickupId}`);
         }
 
         function displayProductsTable(products) {
-            document.getElementById('productsTable').innerHTML = '<p>Products table implementation coming soon...</p>';
+            const container = document.getElementById('productsTable');
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p>No products found. <button class="btn" onclick="showAddProductModal()">Add your first product</button></p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Points Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Created By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products.map(product => `
+                            <tr>
+                                <td>#${product.id}</td>
+                                <td>
+                                    ${product.imageUrl ?
+                                        `<img src="${product.imageUrl}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">` :
+                                        '<div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center;">📦</div>'
+                                    }
+                                </td>
+                                <td>
+                                    <strong>${product.name}</strong><br>
+                                    <small style="color: #666;">${product.description ? product.description.substring(0, 50) + '...' : 'No description'}</small>
+                                </td>
+                                <td><span class="badge badge-info">${product.category ? product.category.name : 'Uncategorized'}</span></td>
+                                <td>₦${product.price ? product.price.toLocaleString() : '0'}</td>
+                                <td>${product.pointsPrice || 0} pts</td>
+                                <td>
+                                    <span class="badge ${product.stockQuantity > 0 ? 'badge-success' : 'badge-danger'}">
+                                        ${product.stockQuantity || 0}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge ${product.isAvailable ? 'badge-success' : 'badge-danger'}">
+                                        ${product.isAvailable ? 'Available' : 'Unavailable'}
+                                    </span>
+                                    ${product.isPointsRedeemable ? '<br><span class="badge badge-warning">Points</span>' : ''}
+                                </td>
+                                <td>${product.createdBy ? product.createdBy.firstName + ' ' + product.createdBy.lastName : 'System'}</td>
+                                <td>
+                                    <button class="btn-small btn-primary" onclick="editProduct(${product.id})">Edit</button>
+                                    <button class="btn-small ${product.isAvailable ? 'btn-warning' : 'btn-success'}"
+                                            onclick="toggleProductAvailability(${product.id})">
+                                        ${product.isAvailable ? 'Disable' : 'Enable'}
+                                    </button>
+                                    <button class="btn-small btn-info" onclick="updateProductStock(${product.id})">Stock</button>
+                                    <button class="btn-small btn-danger" onclick="deleteProduct(${product.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
         function displayDriversTable(drivers) {
@@ -1493,6 +1676,181 @@
             if (modal) {
                 modal.remove();
             }
+        }
+
+        function showAddProductModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Product</h3>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
+                    </div>
+                    <form id="addProductForm" class="modal-form">
+                        <div class="form-group">
+                            <label>Product Name:</label>
+                            <input type="text" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <textarea name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Category:</label>
+                            <select name="categoryId" required>
+                                <option value="">Select Category</option>
+                                <option value="1">Eco-Friendly Products</option>
+                                <option value="2">Recycled Materials</option>
+                                <option value="3">Home & Garden</option>
+                                <option value="4">Electronics</option>
+                                <option value="5">Clothing & Accessories</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Price (₦):</label>
+                            <input type="number" name="price" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Points Price:</label>
+                            <input type="number" name="pointsPrice" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity:</label>
+                            <input type="number" name="stockQuantity" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL:</label>
+                            <input type="url" name="imageUrl" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="isAvailable" checked> Available for purchase
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="isPointsRedeemable"> Can be purchased with points
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" onclick="closeModal(this)">Cancel</button>
+                            <button type="submit">Add Product</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+
+                const productData = {
+                    name: formData.get('name'),
+                    description: formData.get('description'),
+                    category: { id: parseInt(formData.get('categoryId')) },
+                    price: parseFloat(formData.get('price')),
+                    pointsPrice: parseInt(formData.get('pointsPrice')) || 0,
+                    stockQuantity: parseInt(formData.get('stockQuantity')),
+                    imageUrl: formData.get('imageUrl') || null,
+                    isAvailable: formData.has('isAvailable'),
+                    isPointsRedeemable: formData.has('isPointsRedeemable')
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE}/products`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(productData)
+                    });
+
+                    if (response.ok) {
+                        alert('Product created successfully!');
+                        closeModal(modal);
+                        loadProducts();
+                    } else {
+                        const error = await response.text();
+                        alert(`Failed to create product: ${error}`);
+                    }
+                } catch (error) {
+                    alert(`Error creating product: ${error.message}`);
+                }
+            });
+        }
+
+        async function toggleProductAvailability(productId) {
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}/toggle-availability`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    alert('Product availability updated!');
+                    loadProducts();
+                } else {
+                    alert('Failed to update product availability');
+                }
+            } catch (error) {
+                alert('Error updating product availability');
+            }
+        }
+
+        async function updateProductStock(productId) {
+            const quantity = prompt('Enter quantity to add to stock (use negative number to reduce):');
+            if (quantity === null) return;
+
+            const qty = parseInt(quantity);
+            if (isNaN(qty)) {
+                alert('Please enter a valid number');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}/stock?quantity=${qty}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    alert('Stock updated successfully!');
+                    loadProducts();
+                } else {
+                    alert('Failed to update stock');
+                }
+            } catch (error) {
+                alert('Error updating stock');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    alert('Product deleted successfully!');
+                    loadProducts();
+                } else {
+                    alert('Failed to delete product');
+                }
+            } catch (error) {
+                alert('Error deleting product');
+            }
+        }
+
+        function editProduct(productId) {
+            alert(`Edit product functionality coming soon for product #${productId}`);
         }
 
         function showSendNotificationModal() {
