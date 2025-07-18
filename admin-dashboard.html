@@ -898,7 +898,46 @@
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
+            checkStoredAuth();
         });
+
+        function checkStoredAuth() {
+            const storedToken = localStorage.getItem('adminToken');
+            const storedEmail = localStorage.getItem('adminEmail');
+
+            if (storedToken && storedEmail) {
+                authToken = storedToken;
+                document.getElementById('email').value = storedEmail;
+
+                // Try to validate the token by making a test request
+                validateToken();
+            }
+        }
+
+        async function validateToken() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/dashboard`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    // Token is valid, auto-login
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                    loadDashboard();
+                } else {
+                    // Token is invalid, clear storage
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminEmail');
+                    authToken = '';
+                }
+            } catch (error) {
+                console.error('Token validation error:', error);
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                authToken = '';
+            }
+        }
 
         function setupEventListeners() {
             // Login form
@@ -944,6 +983,10 @@
                     const data = await response.json();
                     if (data.role === 'ADMIN') {
                         authToken = data.token;
+                        // Store token in localStorage for persistence
+                        localStorage.setItem('adminToken', data.token);
+                        localStorage.setItem('adminEmail', email);
+
                         messageDiv.innerHTML = '<div class="success">Login successful! Loading dashboard...</div>';
 
                         setTimeout(() => {
@@ -965,6 +1008,8 @@
 
         function logout() {
             authToken = '';
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminEmail');
             document.getElementById('loginContainer').style.display = 'flex';
             document.getElementById('mainApp').style.display = 'none';
             document.getElementById('email').value = 'admin@wastereborn.com';
@@ -1025,6 +1070,10 @@
                 if (response.ok) {
                     const stats = await response.json();
                     displayStats(stats);
+
+                    // Ensure default categories exist
+                    await ensureDefaultCategories();
+
                     loadRecentData();
                 } else {
                     document.getElementById('statsGrid').innerHTML = '<div class="error">Failed to load dashboard data.</div>';
@@ -1032,6 +1081,50 @@
             } catch (error) {
                 document.getElementById('statsGrid').innerHTML = '<div class="error">Error loading dashboard data.</div>';
                 console.error('Dashboard error:', error);
+            }
+        }
+
+        async function ensureDefaultCategories() {
+            try {
+                // Check if categories exist
+                const response = await fetch(`${API_BASE}/categories`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const categories = await response.json();
+                    if (categories.length === 0) {
+                        // Create default categories
+                        await createDefaultCategories();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking categories:', error);
+            }
+        }
+
+        async function createDefaultCategories() {
+            const defaultCategories = [
+                { name: "Eco-Friendly Products", description: "Environmentally friendly products made from recycled materials", isActive: true },
+                { name: "Recycled Materials", description: "Products made from recycled waste materials", isActive: true },
+                { name: "Home & Garden", description: "Eco-friendly home and garden products", isActive: true },
+                { name: "Electronics", description: "Refurbished and eco-friendly electronic products", isActive: true },
+                { name: "Clothing & Accessories", description: "Sustainable clothing and accessories", isActive: true }
+            ];
+
+            for (const category of defaultCategories) {
+                try {
+                    await fetch(`${API_BASE}/categories`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(category)
+                    });
+                } catch (error) {
+                    console.error('Error creating category:', error);
+                }
             }
         }
 
@@ -1241,13 +1334,15 @@
         async function loadProducts() {
             const container = document.getElementById('productsTable');
             try {
-                const response = await fetch(`${API_BASE}/products/admin/all`, {
+                const response = await fetch(`${API_BASE}/products/public/all`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
 
                 if (response.ok) {
                     const products = await response.json();
                     displayProductsTable(products);
+                } else if (response.status === 403) {
+                    container.innerHTML = '<div class="error">Session expired. Please <a href="#" onclick="logout()">login again</a>.</div>';
                 } else {
                     container.innerHTML = '<div class="error">Failed to load products</div>';
                 }
@@ -1892,6 +1987,9 @@
                         alert('Product created successfully!');
                         closeModal(modal);
                         loadProducts();
+                    } else if (response.status === 403) {
+                        alert('Session expired. Please login again.');
+                        logout();
                     } else {
                         const error = await response.text();
                         alert(`Failed to create product: ${error}`);
