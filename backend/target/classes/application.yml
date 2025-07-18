@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: wastereborn-backend
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wastereborn_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:mySecretKey123456789012345678901234567890123456789012345678901234567890}
+      expiration: 86400000 # 24 hours in milliseconds
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    com.wastereborn: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

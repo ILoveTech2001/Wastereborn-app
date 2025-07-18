@@ -4,6 +4,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.wastereborn.fragments.LoginFragment;
+import com.example.wastereborn.fragments.SignupFragment;
+
 public class AuthPagerAdapter extends FragmentStateAdapter {
     public AuthPagerAdapter(FragmentActivity fa) {
         super(fa);

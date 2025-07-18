@@ -112,13 +112,20 @@
     </LinearLayout>
 
     <!-- Product list -->
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recycler_marketplace"
-    android:layout_below="@id/category_container_vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:paddingBottom="16dp"
-    android:scrollbars="vertical" />
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_below="@id/category_container_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_marketplace"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            android:scrollbars="vertical" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </RelativeLayout>

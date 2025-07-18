@@ -19,10 +19,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     private List<Product> productList;
     private List<Product> fullProductList;  // Unfiltered full list
+    private OnProductClickListener clickListener;
+
+    public interface OnProductClickListener {
+        void onProductClick(Product product);
+    }
 
     public ProductAdapter(List<Product> list) {
         this.productList = list;
         this.fullProductList = new ArrayList<>(list);  // Make a copy
+    }
+
+    public void setOnProductClickListener(OnProductClickListener listener) {
+        this.clickListener = listener;
     }
 
     @NonNull
@@ -49,6 +58,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.btnAddToCart.setOnClickListener(v -> {
             CartManager.getInstance().addToCart(product);
             Toast.makeText(v.getContext(), product.getName() + " added to cart!", Toast.LENGTH_SHORT).show();
+        });
+
+        // Add click listener for the entire item
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onProductClick(product);
+            }
         });
     }
 

@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WasteReborn Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 2rem;
+            color: #4a5568;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1rem;
+        }
+        
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #718096;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .icon-users { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .icon-orders { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .icon-pickups { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .icon-products { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .icon-revenue { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .icon-drivers { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error {
+            color: #e53e3e;
+            background: rgba(229, 62, 62, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .success {
+            color: #38a169;
+            background: rgba(56, 161, 105, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid #38a169;
+        }
+
+        .loading {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table th {
+            background: rgba(102, 126, 234, 0.1);
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background: #c6f6d5; color: #22543d; }
+        .badge-warning { background: #fef5e7; color: #744210; }
+        .badge-danger { background: #fed7d7; color: #742a2a; }
+        .badge-info { background: #bee3f8; color: #2a4365; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-content.large-modal {
+            max-width: 90%;
+            width: 1000px;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #2d3748;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #2d3748;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-form {
+            padding: 1.5rem;
+        }
+
+        .modal-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .modal-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .modal-form input,
+        .modal-form select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .modal-form input:focus,
+        .modal-form select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .form-actions button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .form-actions button[type="submit"] {
+            background: #4299e1;
+            color: white;
+        }
+
+        .form-actions button[type="button"] {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            margin-right: 0.25rem;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-content.large-modal {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1><i class="fas fa-leaf"></i> WasteReborn</h1>
+                <p>Admin Dashboard Login</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" value="admin@wastereborn.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" value="password" required>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <div id="loginMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainApp" class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-leaf"></i> WasteReborn</h1>
+            </div>
+            <div class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="overview">
+                    <i class="fas fa-chart-line"></i> Overview
+                </a>
+                <a href="#" class="nav-item" data-section="users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="#" class="nav-item" data-section="orders">
+                    <i class="fas fa-shopping-cart"></i> Orders
+                </a>
+                <a href="#" class="nav-item" data-section="pickups">
+                    <i class="fas fa-truck"></i> Pickups
+                </a>
+                <a href="#" class="nav-item" data-section="products">
+                    <i class="fas fa-box"></i> Products
+                </a>
+                <a href="#" class="nav-item" data-section="drivers">
+                    <i class="fas fa-user-tie"></i> Drivers
+                </a>
+                <a href="#" class="nav-item" data-section="notifications">
+                    <i class="fas fa-bell"></i> Notifications
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1>Dashboard Overview</h1>
+                <p>Welcome to your WasteReborn admin dashboard</p>
+            </div>
+
+            <!-- Overview Section -->
+            <div id="overviewSection" class="section">
+                <div id="statsGrid" class="stats-grid">
+                    <div class="loading">Loading dashboard statistics...</div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon icon-users">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                Recent Users
+                            </div>
+                        </div>
+                        <div id="recentUsers" class="loading">Loading...</div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon icon-orders">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                Recent Orders
+                            </div>
+                        </div>
+                        <div id="recentOrders" class="loading">Loading...</div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon icon-pickups">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                Pending Pickups
+                            </div>
+                        </div>
+                        <div id="pendingPickups" class="loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="usersSection" class="section" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-users"></i> User Management
+                </h2>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showAddUserModal()">
+                        <i class="fas fa-plus"></i> Add User
+                    </button>
+                    <button class="btn" onclick="showAllUsersModal()">
+                        <i class="fas fa-list"></i> View All Users
+                    </button>
+                </div>
+                <div class="table-container">
+                    <div id="usersTable" class="loading">Loading users...</div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="ordersSection" class="section" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-shopping-cart"></i> Order Management
+                </h2>
+                <div class="table-container">
+                    <div id="ordersTable" class="loading">Loading orders...</div>
+                </div>
+            </div>
+
+            <!-- Pickups Section -->
+            <div id="pickupsSection" class="section" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-truck"></i> Pickup Management
+                </h2>
+                <div class="table-container">
+                    <div id="pickupsTable" class="loading">Loading pickups...</div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="productsSection" class="section" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-box"></i> Product Management
+                </h2>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showAddProductModal()">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                </div>
+                <div class="table-container">
+                    <div id="productsTable" class="loading">Loading products...</div>
+                </div>
+            </div>
+
+            <!-- Drivers Section -->
+            <div id="driversSection" class="section" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-user-tie"></i> Driver Management
+                </h2>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showAddDriverModal()">
+                        <i class="fas fa-plus"></i> Add Driver
+                    </button>
+                </div>
+                <div class="table-container">
+                    <div id="driversTable" class="loading">Loading drivers...</div>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div id="notificationsSection" class="section" style="display: none;">
+                <h2 class="section-title">
+                    <i class="fas fa-bell"></i> Notification Management
+                </h2>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showSendNotificationModal()">
+                        <i class="fas fa-paper-plane"></i> Send Notification
+                    </button>
+                    <button class="btn btn-secondary" onclick="showBroadcastModal()">
+                        <i class="fas fa-broadcast-tower"></i> Broadcast
+                    </button>
+                </div>
+                <div class="dashboard-card">
+                    <div id="notificationForm" class="loading">Notification tools...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let authToken = '';
+        let currentSection = 'overview';
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                login();
+            });
+
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    if (section) {
+                        switchSection(section);
+                    }
+                });
+            });
+
+            // Allow Enter key to login
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && document.getElementById('loginContainer').style.display !== 'none') {
+                    login();
+                }
+            });
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('loginMessage');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.role === 'ADMIN') {
+                        authToken = data.token;
+                        messageDiv.innerHTML = '<div class="success">Login successful! Loading dashboard...</div>';
+
+                        setTimeout(() => {
+                            document.getElementById('loginContainer').style.display = 'none';
+                            document.getElementById('mainApp').style.display = 'block';
+                            loadDashboard();
+                        }, 1000);
+                    } else {
+                        messageDiv.innerHTML = '<div class="error">Access denied. Admin privileges required.</div>';
+                    }
+                } else {
+                    messageDiv.innerHTML = '<div class="error">Invalid credentials. Please try again.</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="error">Connection error. Make sure the backend is running.</div>';
+                console.error('Login error:', error);
+            }
+        }
+
+        function logout() {
+            authToken = '';
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('email').value = 'admin@wastereborn.com';
+            document.getElementById('password').value = 'password';
+            document.getElementById('loginMessage').innerHTML = '';
+        }
+
+        function switchSection(section) {
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.style.display = 'none';
+            });
+
+            // Show selected section
+            document.getElementById(`${section}Section`).style.display = 'block';
+            currentSection = section;
+
+            // Load section data
+            switch(section) {
+                case 'overview':
+                    loadDashboard();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'orders':
+                    loadOrders();
+                    break;
+                case 'pickups':
+                    loadPickups();
+                    break;
+                case 'products':
+                    loadProducts();
+                    break;
+                case 'drivers':
+                    loadDrivers();
+                    break;
+                case 'notifications':
+                    loadNotifications();
+                    break;
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    displayStats(stats);
+                    loadRecentData();
+                } else {
+                    document.getElementById('statsGrid').innerHTML = '<div class="error">Failed to load dashboard data.</div>';
+                }
+            } catch (error) {
+                document.getElementById('statsGrid').innerHTML = '<div class="error">Error loading dashboard data.</div>';
+                console.error('Dashboard error:', error);
+            }
+        }
+
+        async function loadRecentData() {
+            // Load recent users, orders, and pickups for the dashboard cards
+            try {
+                const [usersResponse, ordersResponse, pickupsResponse] = await Promise.all([
+                    fetch(`${API_BASE}/admin/users`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                    fetch(`${API_BASE}/admin/orders`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                    fetch(`${API_BASE}/pickups/admin/all`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+                ]);
+
+                if (usersResponse.ok) {
+                    const users = await usersResponse.json();
+                    displayRecentUsers(users.slice(0, 5));
+                }
+
+                if (ordersResponse.ok) {
+                    const orders = await ordersResponse.json();
+                    displayRecentOrders(orders.slice(0, 5));
+                }
+
+                if (pickupsResponse.ok) {
+                    const pickups = await pickupsResponse.json();
+                    displayPendingPickups(pickups.filter(p => p.status === 'PENDING').slice(0, 5));
+                }
+            } catch (error) {
+                console.error('Error loading recent data:', error);
+            }
+        }
+
+        function displayStats(stats) {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.totalUsers || 0}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.regularUsers || 0}</div>
+                    <div class="stat-label">Regular Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.adminUsers || 0}</div>
+                    <div class="stat-label">Admin Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.totalOrders || 0}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.pendingOrders || 0}</div>
+                    <div class="stat-label">Pending Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.completedOrders || 0}</div>
+                    <div class="stat-label">Completed Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.totalPickups || 0}</div>
+                    <div class="stat-label">Total Pickups</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.pendingPickups || 0}</div>
+                    <div class="stat-label">Pending Pickups</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.totalProducts || 0}</div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$${(stats.totalRevenue || 0).toFixed(2)}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$${(stats.weeklyRevenue || 0).toFixed(2)}</div>
+                    <div class="stat-label">Weekly Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.weeklyOrders || 0}</div>
+                    <div class="stat-label">Weekly Orders</div>
+                </div>
+            `;
+        }
+
+        function displayRecentUsers(users) {
+            const container = document.getElementById('recentUsers');
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p>No recent users</p>';
+                return;
+            }
+
+            container.innerHTML = users.map(user => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <strong>${user.firstName} ${user.lastName}</strong><br>
+                        <small style="color: #718096;">${user.email}</small>
+                    </div>
+                    <span class="badge badge-${user.role === 'ADMIN' ? 'info' : 'success'}">${user.role}</span>
+                </div>
+            `).join('');
+        }
+
+        function displayRecentOrders(orders) {
+            const container = document.getElementById('recentOrders');
+            if (!orders || orders.length === 0) {
+                container.innerHTML = '<p>No recent orders</p>';
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <strong>${order.orderNumber}</strong><br>
+                        <small style="color: #718096;">$${order.totalAmount.toFixed(2)}</small>
+                    </div>
+                    <span class="badge badge-${getOrderStatusBadge(order.status)}">${order.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function displayPendingPickups(pickups) {
+            const container = document.getElementById('pendingPickups');
+            if (!pickups || pickups.length === 0) {
+                container.innerHTML = '<p>No pending pickups</p>';
+                return;
+            }
+
+            container.innerHTML = pickups.map(pickup => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <strong>${pickup.wasteType}</strong><br>
+                        <small style="color: #718096;">${pickup.pickupAddress}</small>
+                    </div>
+                    <span class="badge badge-warning">${pickup.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function getOrderStatusBadge(status) {
+            switch(status) {
+                case 'PENDING': return 'warning';
+                case 'CONFIRMED': return 'info';
+                case 'PROCESSING': return 'info';
+                case 'SHIPPED': return 'info';
+                case 'DELIVERED': return 'success';
+                case 'CANCELLED': return 'danger';
+                default: return 'info';
+            }
+        }
+
+        // Section loading functions
+        async function loadUsers() {
+            const container = document.getElementById('usersTable');
+            try {
+                const response = await fetch(`${API_BASE}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    displayUsersTable(users);
+                } else {
+                    container.innerHTML = '<div class="error">Failed to load users</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading users</div>';
+            }
+        }
+
+        async function loadOrders() {
+            const container = document.getElementById('ordersTable');
+            try {
+                const response = await fetch(`${API_BASE}/admin/orders`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const orders = await response.json();
+                    displayOrdersTable(orders);
+                } else {
+                    container.innerHTML = '<div class="error">Failed to load orders</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading orders</div>';
+            }
+        }
+
+        async function loadPickups() {
+            const container = document.getElementById('pickupsTable');
+            try {
+                const response = await fetch(`${API_BASE}/pickups/admin/all`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const pickups = await response.json();
+                    displayPickupsTable(pickups);
+                } else {
+                    container.innerHTML = '<div class="error">Failed to load pickups</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading pickups</div>';
+            }
+        }
+
+        async function loadProducts() {
+            const container = document.getElementById('productsTable');
+            try {
+                const response = await fetch(`${API_BASE}/products/admin/all`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const products = await response.json();
+                    displayProductsTable(products);
+                } else {
+                    container.innerHTML = '<div class="error">Failed to load products</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading products</div>';
+            }
+        }
+
+        async function loadDrivers() {
+            const container = document.getElementById('driversTable');
+            try {
+                const response = await fetch(`${API_BASE}/admin/drivers`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const drivers = await response.json();
+                    displayDriversTable(drivers);
+                } else {
+                    container.innerHTML = '<div class="error">Failed to load drivers</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading drivers</div>';
+            }
+        }
+
+        function loadNotifications() {
+            const container = document.getElementById('notificationForm');
+            container.innerHTML = `
+                <h3>Send Notification</h3>
+                <form id="notificationForm" style="margin-top: 1rem;">
+                    <div class="form-group">
+                        <label>User ID (leave empty for broadcast)</label>
+                        <input type="number" id="notifUserId" placeholder="Enter user ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="notifTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="notifMessage" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="notifType" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="INFO">Info</option>
+                            <option value="SUCCESS">Success</option>
+                            <option value="WARNING">Warning</option>
+                            <option value="ERROR">Error</option>
+                            <option value="PROMOTION">Promotion</option>
+                            <option value="SYSTEM">System</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Send Notification</button>
+                </form>
+            `;
+
+            document.getElementById('notificationForm').addEventListener('submit', sendNotification);
+        }
+
+        // Display table functions
+        function displayUsersTable(users) {
+            const container = document.getElementById('usersTable');
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p>No users found</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Points</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.firstName} ${user.lastName}</td>
+                                <td>${user.email}</td>
+                                <td><span class="badge badge-${user.role === 'ADMIN' ? 'info' : 'success'}">${user.role}</span></td>
+                                <td>${user.pointsBalance || 0}</td>
+                                <td><span class="badge badge-${user.enabled ? 'success' : 'danger'}">${user.enabled ? 'Active' : 'Disabled'}</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="toggleUserStatus(${user.id}, ${!user.enabled})" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                        ${user.enabled ? 'Disable' : 'Enable'}
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Utility functions for admin actions
+        async function toggleUserStatus(userId, enable) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/users/${userId}/status?enabled=${enable}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    loadUsers(); // Reload the users table
+                } else {
+                    alert('Failed to update user status');
+                }
+            } catch (error) {
+                alert('Error updating user status');
+            }
+        }
+
+        async function sendNotification(e) {
+            e.preventDefault();
+            const userId = document.getElementById('notifUserId').value;
+            const title = document.getElementById('notifTitle').value;
+            const message = document.getElementById('notifMessage').value;
+            const type = document.getElementById('notifType').value;
+
+            try {
+                const endpoint = userId ? '/admin/notifications/send' : '/admin/notifications/broadcast';
+                const body = userId ?
+                    { userId: parseInt(userId), title, message, type } :
+                    { title, message, type };
+
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    alert('Notification sent successfully!');
+                    document.getElementById('notificationForm').reset();
+                } else {
+                    alert('Failed to send notification');
+                }
+            } catch (error) {
+                alert('Error sending notification');
+            }
+        }
+
+        // Placeholder functions for other tables (to be implemented)
+        function displayOrdersTable(orders) {
+            document.getElementById('ordersTable').innerHTML = '<p>Orders table implementation coming soon...</p>';
+        }
+
+        function displayPickupsTable(pickups) {
+            document.getElementById('pickupsTable').innerHTML = '<p>Pickups table implementation coming soon...</p>';
+        }
+
+        function displayProductsTable(products) {
+            document.getElementById('productsTable').innerHTML = '<p>Products table implementation coming soon...</p>';
+        }
+
+        function displayDriversTable(drivers) {
+            document.getElementById('driversTable').innerHTML = '<p>Drivers table implementation coming soon...</p>';
+        }
+
+        // Modal functions (placeholders)
+        function showAddProductModal() {
+            alert('Add Product modal coming soon...');
+        }
+
+        function showAddDriverModal() {
+            alert('Add Driver modal coming soon...');
+        }
+
+        function showAddUserModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New User</h3>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
+                    </div>
+                    <form id="addUserForm" class="modal-form">
+                        <div class="form-group">
+                            <label>First Name:</label>
+                            <input type="text" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name:</label>
+                            <input type="text" name="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <input type="tel" name="phoneNumber" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password:</label>
+                            <input type="password" name="password" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label>Role:</label>
+                            <select name="role" required>
+                                <option value="USER">User</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" onclick="closeModal(this)">Cancel</button>
+                            <button type="submit">Add User</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const userData = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch(`${API_BASE}/admin/users`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(userData)
+                    });
+
+                    if (response.ok) {
+                        alert('User created successfully!');
+                        closeModal(modal);
+                        loadUsers();
+                    } else {
+                        const error = await response.text();
+                        alert(`Failed to create user: ${error}`);
+                    }
+                } catch (error) {
+                    alert(`Error creating user: ${error.message}`);
+                }
+            });
+        }
+
+        function showAllUsersModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3>All Users in Database</h3>
+                        <button class="close-btn" onclick="closeModal(this)">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="allUsersTable" class="loading">Loading all users...</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            loadAllUsers();
+        }
+
+        async function loadAllUsers() {
+            const container = document.getElementById('allUsersTable');
+            try {
+                const response = await fetch(`${API_BASE}/admin/users/all`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    displayAllUsersTable(users);
+                } else {
+                    container.innerHTML = '<p>Failed to load users</p>';
+                }
+            } catch (error) {
+                container.innerHTML = '<p>Error loading users</p>';
+            }
+        }
+
+        function displayAllUsersTable(users) {
+            const container = document.getElementById('allUsersTable');
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p>No users found in database</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Registration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.firstName} ${user.lastName}</td>
+                                <td>${user.email}</td>
+                                <td>${user.phoneNumber || 'N/A'}</td>
+                                <td><span class="badge ${user.role.toLowerCase()}">${user.role}</span></td>
+                                <td><span class="badge ${user.enabled ? 'active' : 'inactive'}">${user.enabled ? 'Active' : 'Inactive'}</span></td>
+                                <td>${new Date(user.registrationDate || user.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="btn-small ${user.enabled ? 'btn-danger' : 'btn-success'}"
+                                            onclick="toggleUserStatus(${user.id}, ${!user.enabled})">
+                                        ${user.enabled ? 'Disable' : 'Enable'}
+                                    </button>
+                                    <button class="btn-small btn-danger" onclick="deleteUser(${user.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    alert('User deleted successfully!');
+                    loadAllUsers(); // Reload the modal table
+                    loadUsers(); // Reload the main table
+                } else {
+                    alert('Failed to delete user');
+                }
+            } catch (error) {
+                alert('Error deleting user');
+            }
+        }
+
+        function closeModal(element) {
+            const modal = element.closest('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function showSendNotificationModal() {
+            switchSection('notifications');
+        }
+
+        function showBroadcastModal() {
+            switchSection('notifications');
+        }
+    </script>
+</body>
+</html>

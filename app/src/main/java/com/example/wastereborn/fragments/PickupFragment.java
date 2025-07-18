@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-// import android.widget.ImageView; // ImageView was imported but not used, can be removed
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -18,19 +18,28 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.wastereborn.R;
+import com.example.wastereborn.api.ApiClient;
+import com.example.wastereborn.model.ApiResponse;
+import com.example.wastereborn.utils.SessionManager;
 
 import java.util.HashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PickupFragment extends Fragment {
 
     private Spinner spinnerWasteType, spinnerStreet, spinnerPickupSlot;
+    private EditText editSpecialInstructions, editEstimatedWeight;
     private Button btnConfirmPickup;
 
-    private final String[] wasteTypes = {"Plastic", "electronics", "Glass", "Paper", "Organic","general waste"};
+    private final String[] wasteTypes = {"Plastic", "Electronics", "Glass", "Paper", "Organic", "General Waste"};
     private final String[] streets = {"Melen", "Bastos", "Biyem-Assi", "Odza", "Ekounou"};
     private final HashMap<String, String[]> pickupSlotsMap = new HashMap<>();
 
     private SharedPreferences sharedPreferences;
+    private SessionManager sessionManager;
 
     @Nullable
     @Override
@@ -44,9 +53,12 @@ public class PickupFragment extends Fragment {
         spinnerWasteType = view.findViewById(R.id.spinner_waste_type);
         spinnerStreet = view.findViewById(R.id.spinner_street);
         spinnerPickupSlot = view.findViewById(R.id.spinner_pickup_slot);
+        editSpecialInstructions = view.findViewById(R.id.edit_special_instructions);
+        editEstimatedWeight = view.findViewById(R.id.edit_estimated_weight);
         btnConfirmPickup = view.findViewById(R.id.btn_confirm_pickup);
 
         sharedPreferences = requireContext().getSharedPreferences("PickupPrefs", Context.MODE_PRIVATE);
+        sessionManager = new SessionManager(requireContext());
 
         // Sample slot mappings
         pickupSlotsMap.put("Melen", new String[]{"Mon 8–10 AM", "Wed 3–5 PM"});
@@ -69,27 +81,7 @@ public class PickupFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        btnConfirmPickup.setOnClickListener(v -> {
-            // It's good practice to ensure getSelectedItem() is not null before calling toString()
-            // though with ArrayAdapters of Strings it's usually safe if an item is selected.
-            String wasteType = spinnerWasteType.getSelectedItem() != null ? spinnerWasteType.getSelectedItem().toString() : "";
-            String street = spinnerStreet.getSelectedItem() != null ? spinnerStreet.getSelectedItem().toString() : "";
-            String slot = spinnerPickupSlot.getSelectedItem() != null ? spinnerPickupSlot.getSelectedItem().toString() : "";
-
-
-            if (wasteType.isEmpty() || street.isEmpty() || slot.isEmpty() || "No slots available".equals(slot)) {
-                Toast.makeText(getContext(), "Please complete all fields and select a valid slot", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Save permanent address
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("user_home_address", street);
-            editor.apply();
-
-            // Later: Send pickup request to backend
-            Toast.makeText(getContext(), "Pickup scheduled at " + slot + " in " + street, Toast.LENGTH_LONG).show();
-        });
+        btnConfirmPickup.setOnClickListener(v -> createPickupRequest());
 
         return view;
     }
@@ -103,10 +95,109 @@ public class PickupFragment extends Fragment {
     }
 
     private void updatePickupSlots(String street) {
-        String[] slots = pickupSlotsMap.get(street); // Get the value associated with the key
-        if (slots == null) { // Check if the key was not found (get returns null)
-            slots = new String[]{"No slots available"}; // Provide default value
+        String[] slots = pickupSlotsMap.get(street);
+        if (slots == null) {
+            slots = new String[]{"No slots available"};
         }
         setupSpinner(spinnerPickupSlot, slots);
+    }
+
+    private void createPickupRequest() {
+        String wasteType = spinnerWasteType.getSelectedItem() != null ? spinnerWasteType.getSelectedItem().toString() : "";
+        String street = spinnerStreet.getSelectedItem() != null ? spinnerStreet.getSelectedItem().toString() : "";
+        String slot = spinnerPickupSlot.getSelectedItem() != null ? spinnerPickupSlot.getSelectedItem().toString() : "";
+        String specialInstructions = editSpecialInstructions != null ? editSpecialInstructions.getText().toString().trim() : "";
+        String weightStr = editEstimatedWeight != null ? editEstimatedWeight.getText().toString().trim() : "";
+
+        // Validation
+        if (wasteType.isEmpty() || street.isEmpty() || slot.isEmpty() || "No slots available".equals(slot)) {
+            Toast.makeText(getContext(), "Please complete all fields and select a valid slot", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double estimatedWeight = 0.0;
+        if (!weightStr.isEmpty()) {
+            try {
+                estimatedWeight = Double.parseDouble(weightStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Please enter a valid weight", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        if (!sessionManager.isLoggedIn()) {
+            Toast.makeText(getContext(), "Please login to create pickup request", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show loading
+        setLoading(true);
+
+        // Create pickup request object
+        PickupRequestData pickupRequest = new PickupRequestData();
+        pickupRequest.pickupAddress = street + " Quarter";
+        pickupRequest.pickupStreet = street;
+        pickupRequest.pickupCity = "Yaoundé";
+        pickupRequest.wasteType = wasteType;
+        pickupRequest.estimatedWeight = estimatedWeight;
+        pickupRequest.specialInstructions = specialInstructions;
+        pickupRequest.preferredPickupSlot = slot;
+
+        // Make API call
+        ApiClient.getApiService().createPickupRequest(sessionManager.getAuthHeader(), pickupRequest)
+                .enqueue(new Callback<ApiResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                        setLoading(false);
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            // Save permanent address
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("user_home_address", street);
+                            editor.apply();
+
+                            Toast.makeText(getContext(), "Pickup request created successfully! You'll earn 5 points when completed.", Toast.LENGTH_LONG).show();
+
+                            // Clear form
+                            clearForm();
+                        } else {
+                            Toast.makeText(getContext(), "Failed to create pickup request", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                        setLoading(false);
+                        Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void setLoading(boolean isLoading) {
+        btnConfirmPickup.setEnabled(!isLoading);
+        btnConfirmPickup.setText(isLoading ? "Creating Request..." : "Confirm Pickup");
+    }
+
+    private void clearForm() {
+        if (editSpecialInstructions != null) {
+            editSpecialInstructions.setText("");
+        }
+        if (editEstimatedWeight != null) {
+            editEstimatedWeight.setText("");
+        }
+        // Reset spinners to first item
+        spinnerWasteType.setSelection(0);
+        spinnerStreet.setSelection(0);
+    }
+
+    // Inner class for pickup request data
+    private static class PickupRequestData {
+        public String pickupAddress;
+        public String pickupStreet;
+        public String pickupCity;
+        public String wasteType;
+        public double estimatedWeight;
+        public String specialInstructions;
+        public String preferredPickupSlot;
     }
 }
