@@ -35,7 +35,7 @@ public class Product {
     @Column(name = "points_price")
     private Integer pointsPrice;
     
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
     
     @Column(name = "stock_quantity")
