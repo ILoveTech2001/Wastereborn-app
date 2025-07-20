@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Category and Product Fixes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Category and Product Fixes</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Categories API</h2>
+        <div id="categories-result"></div>
+        <button onclick="testCategories()">Test Categories</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Products API</h2>
+        <div id="products-result"></div>
+        <button onclick="testProducts()">Test Products</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Product Category Names</h2>
+        <div id="category-names-result"></div>
+        <button onclick="testProductCategoryNames()">Test Category Names</button>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+
+        async function testCategories() {
+            const result = document.getElementById('categories-result');
+            result.innerHTML = '<p class="info">Testing categories...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/products/public/categories`);
+                
+                if (response.ok) {
+                    const categories = await response.json();
+                    result.innerHTML = `
+                        <p class="success">✅ Categories loaded successfully!</p>
+                        <p><strong>Categories found:</strong> ${categories.length}</p>
+                        <ul>${categories.map(cat => `<li>${cat}</li>`).join('')}</ul>
+                    `;
+                } else {
+                    result.innerHTML = `<p class="error">❌ Failed to load categories: ${response.status}</p>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testProducts() {
+            const result = document.getElementById('products-result');
+            result.innerHTML = '<p class="info">Testing products...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/products/public/all`);
+                
+                if (response.ok) {
+                    const products = await response.json();
+                    result.innerHTML = `
+                        <p class="success">✅ Products loaded successfully!</p>
+                        <p><strong>Products found:</strong> ${products.length}</p>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            ${products.map(product => `
+                                <div style="border: 1px solid #eee; margin: 5px; padding: 10px;">
+                                    <strong>${product.name}</strong><br>
+                                    Category: ${product.categoryName || product.category || 'N/A'}<br>
+                                    Price: ${product.price} FCFA<br>
+                                    Available: ${product.isAvailable ? 'Yes' : 'No'}<br>
+                                    Stock: ${product.stockQuantity || 0}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `<p class="error">❌ Failed to load products: ${response.status}</p>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testProductCategoryNames() {
+            const result = document.getElementById('category-names-result');
+            result.innerHTML = '<p class="info">Testing product category names...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/products/public/all`);
+                
+                if (response.ok) {
+                    const products = await response.json();
+                    const categoryNames = products.map(p => p.categoryName).filter(Boolean);
+                    const uniqueCategories = [...new Set(categoryNames)];
+                    
+                    result.innerHTML = `
+                        <p class="success">✅ Category names extracted successfully!</p>
+                        <p><strong>Unique categories from products:</strong></p>
+                        <ul>${uniqueCategories.map(cat => `<li>${cat}</li>`).join('')}</ul>
+                        <p><strong>Products with category names:</strong> ${categoryNames.length}/${products.length}</p>
+                    `;
+                } else {
+                    result.innerHTML = `<p class="error">❌ Failed to load products: ${response.status}</p>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            setTimeout(testCategories, 500);
+            setTimeout(testProducts, 1000);
+            setTimeout(testProductCategoryNames, 1500);
+        };
+    </script>
+</body>
+</html>

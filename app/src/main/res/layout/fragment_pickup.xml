@@ -1,89 +1,250 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@android:color/white">
+    android:background="@color/background_light"
+    android:fillViewport="true">
 
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Modern Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/auth_gradient_background"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Schedule Pickup"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Let us collect your waste responsibly"
+            android:textSize="16sp"
+            android:textColor="@color/primary_green_light"
+            android:alpha="0.9" />
+
+    </LinearLayout>
+
+    <!-- Main Content -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:paddingBottom="32dp">
+        android:padding="24dp">
 
-        <!-- Heading -->
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Schedule a Pickup"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="20dp" />
-
-        <!-- Waste Type Spinner -->
-        <TextView
+        <!-- Waste Type Selection -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select Waste Type"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:layout_marginBottom="20dp">
 
-        <Spinner
-            android:id="@+id/spinner_waste_type"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Waste Type"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    android:backgroundTint="@color/background_light">
+
+                    <Spinner
+                        android:id="@+id/spinner_waste_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@android:color/transparent" />
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Street Selection -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:layout_marginBottom="20dp">
 
-        <!-- Street Spinner -->
-        <TextView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Your Street"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    android:backgroundTint="@color/background_light">
+
+                    <Spinner
+                        android:id="@+id/spinner_street"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@android:color/transparent" />
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Pickup Time Selection -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select Your Street"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:layout_marginBottom="24dp">
 
-        <Spinner
-            android:id="@+id/spinner_street"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pickup Time"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    android:backgroundTint="@color/background_light">
+
+                    <Spinner
+                        android:id="@+id/spinner_pickup_slot"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@android:color/transparent" />
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Illustration Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:layout_marginBottom="24dp">
 
-        <!-- Pickup Slot Spinner -->
-        <TextView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_marginBottom="16dp"
+                    android:src="@drawable/ic_pickup"
+                    android:tint="@color/primary_green"
+                    android:contentDescription="Pickup illustration" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="We'll collect your waste"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Our team will arrive at your scheduled time"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:textAlignment="center" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Confirm Button -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Available Pickup Days and Time"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            android:layout_height="56dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="8dp"
+            android:backgroundTint="@color/primary_green">
 
-        <Spinner
-            android:id="@+id/spinner_pickup_slot"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp" />
+            <Button
+                android:id="@+id/btn_confirm_pickup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Confirm Pickup Request"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:background="@android:color/transparent"
+                android:textAllCaps="false" />
 
-        <!-- Static Illustration -->
-        <ImageView
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            android:layout_marginBottom="24dp"
-            android:src="@drawable/ic_pickup"
-            android:contentDescription="Pickup illustration" />
-
-        <!-- Confirm Pickup Button -->
-        <Button
-            android:id="@+id/btn_confirm_pickup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Confirm Pickup Request"
-            android:textColor="@android:color/white"
-            android:backgroundTint="@color/green"
-            android:padding="12dp"
-            android:textAllCaps="false"
-            android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
+
+</LinearLayout>
+
 </ScrollView>

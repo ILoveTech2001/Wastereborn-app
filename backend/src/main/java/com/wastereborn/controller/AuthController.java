@@ -31,6 +31,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        System.out.println("🔐 Login attempt for email: " + loginRequest.getEmail());
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -42,8 +44,12 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = tokenProvider.generateToken(authentication);
 
+            System.out.println("✅ Authentication successful for: " + loginRequest.getEmail());
+
             User user = (User) authentication.getPrincipal();
-            
+            System.out.println("👤 User role: " + user.getRole());
+            System.out.println("🔑 Generated JWT token: " + jwt.substring(0, Math.min(20, jwt.length())) + "...");
+
             return ResponseEntity.ok(new JwtResponse(jwt, user));
         } catch (Exception e) {
             return ResponseEntity.badRequest()

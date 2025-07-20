@@ -16,8 +16,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.wastereborn.R;
 import com.example.wastereborn.api.ApiClient;
+import com.example.wastereborn.model.OrderResponse;
 import com.example.wastereborn.utils.SessionManager;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +35,7 @@ public class OrdersFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView textEmptyState;
     private OrdersAdapter ordersAdapter;
-    private List<OrderItem> ordersList;
+    private List<OrderResponse> ordersList;
     private SessionManager sessionManager;
 
     public OrdersFragment() {}
@@ -66,6 +70,14 @@ public class OrdersFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh orders when fragment becomes visible (e.g., after payment)
+        System.out.println("📱 OrdersFragment: onResume() - Refreshing orders");
+        loadOrders();
+    }
+
     private void loadOrders() {
         if (!sessionManager.isLoggedIn()) {
             showEmptyState("Please login to view your orders");
@@ -84,16 +96,18 @@ public class OrdersFragment extends Fragment {
                             List<Object> apiOrders = response.body();
                             ordersList.clear();
 
-                            // Convert API orders to local OrderItem objects
-                            for (Object apiOrder : apiOrders) {
-                                // This would need proper parsing based on your API response
-                                OrderItem order = new OrderItem();
-                                order.orderNumber = "WR" + System.currentTimeMillis();
-                                order.status = "Processing";
-                                order.totalAmount = "FCFA 5,500";
-                                order.orderDate = "Today";
-                                order.itemCount = "2 items";
-                                ordersList.add(order);
+                            // Convert API orders to OrderResponse objects
+                            try {
+                                Gson gson = new Gson();
+                                String jsonString = gson.toJson(apiOrders);
+                                Type listType = new TypeToken<List<OrderResponse>>(){}.getType();
+                                List<OrderResponse> realOrders = gson.fromJson(jsonString, listType);
+                                ordersList.addAll(realOrders);
+
+                                System.out.println("✅ Loaded " + ordersList.size() + " orders from API");
+                            } catch (Exception e) {
+                                System.err.println("❌ Error parsing orders: " + e.getMessage());
+                                e.printStackTrace();
                             }
 
                             if (ordersList.isEmpty()) {
@@ -104,50 +118,21 @@ public class OrdersFragment extends Fragment {
 
                             ordersAdapter.notifyDataSetChanged();
                         } else {
-                            Toast.makeText(getContext(), "Failed to load orders", Toast.LENGTH_SHORT).show();
-                            loadSampleOrders();
+                            System.err.println("❌ API Error: " + response.code() + " - " + response.message());
+                            showEmptyState("Failed to load orders. Please try again.");
                         }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<List<Object>> call, @NonNull Throwable t) {
                         setLoading(false);
-                        Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        loadSampleOrders();
+                        System.err.println("❌ Network Error: " + t.getMessage());
+                        showEmptyState("Network error. Please check your connection.");
                     }
                 });
     }
 
-    private void loadSampleOrders() {
-        ordersList.clear();
-
-        OrderItem order1 = new OrderItem();
-        order1.orderNumber = "WR1234567890";
-        order1.status = "Delivered";
-        order1.totalAmount = "FCFA 5,500";
-        order1.orderDate = "2 days ago";
-        order1.itemCount = "2 items";
-        ordersList.add(order1);
-
-        OrderItem order2 = new OrderItem();
-        order2.orderNumber = "WR1234567891";
-        order2.status = "Shipped";
-        order2.totalAmount = "FCFA 3,800";
-        order2.orderDate = "1 week ago";
-        order2.itemCount = "1 item";
-        ordersList.add(order2);
-
-        OrderItem order3 = new OrderItem();
-        order3.orderNumber = "WR1234567892";
-        order3.status = "Processing";
-        order3.totalAmount = "FCFA 2,000";
-        order3.orderDate = "Today";
-        order3.itemCount = "1 item";
-        ordersList.add(order3);
-
-        hideEmptyState();
-        ordersAdapter.notifyDataSetChanged();
-    }
+    // Removed hardcoded sample orders - now using real API data
 
     private void setLoading(boolean isLoading) {
         if (swipeRefreshLayout != null) {
@@ -179,11 +164,11 @@ public class OrdersFragment extends Fragment {
         public String itemCount;
     }
 
-    // Simple OrdersAdapter class
+    // OrdersAdapter class for real API data
     public static class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.OrderViewHolder> {
-        private List<OrderItem> orders;
+        private List<OrderResponse> orders;
 
-        public OrdersAdapter(List<OrderItem> orders) {
+        public OrdersAdapter(List<OrderResponse> orders) {
             this.orders = orders;
         }
 
@@ -197,9 +182,15 @@ public class OrdersFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-            OrderItem order = orders.get(position);
-            holder.textPrimary.setText(order.orderNumber + " - " + order.status);
-            holder.textSecondary.setText(order.totalAmount + " • " + order.itemCount + " • " + order.orderDate);
+            OrderResponse order = orders.get(position);
+
+            String primaryText = (order.getOrderNumber() != null ? order.getOrderNumber() : "Order #" + order.getId())
+                    + " - " + order.getFormattedStatus();
+
+            String secondaryText = order.getFormattedAmount() + " • " + order.getItemCount() + " • " + order.getFormattedDate();
+
+            holder.textPrimary.setText(primaryText);
+            holder.textSecondary.setText(secondaryText);
         }
 
         @Override

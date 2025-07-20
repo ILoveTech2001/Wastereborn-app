@@ -16,8 +16,7 @@ import androidx.fragment.app.Fragment;
 import com.example.wastereborn.R;
 import com.example.wastereborn.api.ApiClient;
 import com.example.wastereborn.api.ApiService;
-import com.example.wastereborn.model.Notification;
-import com.example.wastereborn.model.Reward;
+
 import com.example.wastereborn.utils.SessionManager;
 
 import java.util.List;
@@ -29,8 +28,7 @@ import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
-    private TextView greetingText, userInitial, pointsText, levelText;
-    private TextView recentActivityText, activityDate;
+    private TextView greetingText, userInitial, totalOrders, percentRecycled;
     private CardView cardOrderPickup, cardVisitStore;
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -50,10 +48,8 @@ public class HomeFragment extends Fragment {
         // Initialize views
         greetingText = view.findViewById(R.id.greeting_text);
         userInitial = view.findViewById(R.id.user_initial);
-        pointsText = view.findViewById(R.id.points_text);
-        levelText = view.findViewById(R.id.level_text);
-        recentActivityText = view.findViewById(R.id.recent_activity_text);
-        activityDate = view.findViewById(R.id.activity_date);
+        percentRecycled = view.findViewById(R.id.percent_recycled);
+        totalOrders = view.findViewById(R.id.total_orders);
         cardOrderPickup = view.findViewById(R.id.card_order_pickup);
         cardVisitStore = view.findViewById(R.id.card_visit_store);
 
@@ -62,6 +58,9 @@ public class HomeFragment extends Fragment {
 
         // Load real user data from session
         loadUserData();
+
+        // Load real orders count
+        loadOrdersCount();
 
         // Set card click actions
         cardOrderPickup.setOnClickListener(v -> {
@@ -83,6 +82,16 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh data when fragment becomes visible (e.g., after payment)
+        System.out.println("🏠 HomeFragment: onResume() - Refreshing data");
+        if (sessionManager.isLoggedIn()) {
+            loadOrdersCount();
+        }
+    }
+
     private void loadUserData() {
         if (sessionManager.isLoggedIn()) {
             // Set user initial
@@ -92,21 +101,14 @@ public class HomeFragment extends Fragment {
             String greeting = "Welcome back, " + sessionManager.getUserName().split(" ")[0] + "! 🌱";
             greetingText.setText(greeting);
 
-            // Load points from API
+            // Load points and update percentage
             loadUserPoints();
-
-            // Load recent activity
-            loadRecentActivity();
-
-            // Set default level (can be enhanced later)
-            levelText.setText(sessionManager.isPremium() ? "Premium" : "Standard");
         } else {
             // Default values if not logged in
             userInitial.setText("U");
-            pointsText.setText("0");
-            levelText.setText("Guest");
+            percentRecycled.setText("0%");
+            totalOrders.setText("0");
             greetingText.setText("Welcome to WasteReborn! 🌱");
-            recentActivityText.setText("Please log in to see your activity");
         }
     }
 
@@ -119,7 +121,9 @@ public class HomeFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     Integer points = response.body().get("points");
                     if (points != null) {
-                        pointsText.setText(String.valueOf(points));
+                        // Update percentage based on points (example calculation)
+                        int percentage = Math.min(100, points / 10);
+                        percentRecycled.setText(percentage + "%");
                     }
                 }
             }
@@ -127,31 +131,40 @@ public class HomeFragment extends Fragment {
             @Override
             public void onFailure(Call<Map<String, Integer>> call, Throwable t) {
                 // Handle error silently or show default
-                pointsText.setText(String.valueOf(sessionManager.getPointsBalance()));
+                int points = sessionManager.getPointsBalance();
+                int percentage = Math.min(100, points / 10);
+                percentRecycled.setText(percentage + "%");
             }
         });
     }
 
-    private void loadRecentActivity() {
-        String token = "Bearer " + sessionManager.getToken();
 
-        apiService.getRecentActivity(token).enqueue(new Callback<List<Object>>() {
+
+    private void loadOrdersCount() {
+        if (!sessionManager.isLoggedIn()) {
+            totalOrders.setText("0");
+            return;
+        }
+
+        String token = sessionManager.getAuthHeader();
+
+        apiService.getUserOrders(token).enqueue(new Callback<List<Object>>() {
             @Override
             public void onResponse(Call<List<Object>> call, Response<List<Object>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    // For now, just show that there's activity
-                    recentActivityText.setText("Recent pickup completed successfully");
-                    activityDate.setText("Today");
+                if (response.isSuccessful() && response.body() != null) {
+                    int ordersCount = response.body().size();
+                    totalOrders.setText(String.valueOf(ordersCount));
+                    System.out.println("🏠 HomeFragment: Updated orders count to " + ordersCount);
                 } else {
-                    recentActivityText.setText("No recent activity");
-                    activityDate.setText("");
+                    totalOrders.setText("0");
+                    System.err.println("🏠 HomeFragment: Failed to load orders count");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Object>> call, Throwable t) {
-                recentActivityText.setText("Unable to load recent activity");
-                activityDate.setText("");
+                totalOrders.setText("0");
+                System.err.println("🏠 HomeFragment: Error loading orders count: " + t.getMessage());
             }
         });
     }

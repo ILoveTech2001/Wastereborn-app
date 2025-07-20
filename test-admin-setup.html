@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Admin Setup</title>
+</head>
+<body>
+    <h1>Admin Setup Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        
+        async function testAdminSetup() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Testing Admin Setup...</h2>';
+            
+            try {
+                // Test 1: Login as admin
+                console.log('Testing admin login...');
+                const loginResponse = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@wastereborn.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                if (loginResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    results.innerHTML += '<p>✅ Admin login successful</p>';
+                    results.innerHTML += `<p>Token: ${loginData.token.substring(0, 20)}...</p>`;
+                    results.innerHTML += `<p>Role: ${loginData.role}</p>`;
+                    
+                    // Test 2: Check categories
+                    console.log('Testing categories...');
+                    const categoriesResponse = await fetch(`${API_BASE}/categories`, {
+                        headers: { 'Authorization': `Bearer ${loginData.token}` }
+                    });
+
+                    if (categoriesResponse.ok) {
+                        const categories = await categoriesResponse.json();
+                        results.innerHTML += '<p>✅ Categories loaded successfully</p>';
+                        results.innerHTML += `<p>Categories found: ${categories.length}</p>`;
+                        categories.forEach(cat => {
+                            results.innerHTML += `<p>- ${cat.name} (ID: ${cat.id})</p>`;
+                        });
+                    } else {
+                        const errorText = await categoriesResponse.text();
+                        results.innerHTML += '<p>❌ Failed to load categories</p>';
+                        results.innerHTML += `<p>Error: ${errorText}</p>`;
+                    }
+
+                    // Test 2.5: Check products loading
+                    console.log('Testing products loading...');
+                    const productsResponse = await fetch(`${API_BASE}/products`, {
+                        headers: { 'Authorization': `Bearer ${loginData.token}` }
+                    });
+
+                    if (productsResponse.ok) {
+                        const products = await productsResponse.json();
+                        results.innerHTML += '<p>✅ Products loaded successfully</p>';
+                        results.innerHTML += `<p>Products found: ${products.length}</p>`;
+                    } else {
+                        const errorText = await productsResponse.text();
+                        results.innerHTML += '<p>❌ Failed to load products</p>';
+                        results.innerHTML += `<p>Error: ${errorText}</p>`;
+                    }
+                    
+                    // Test 3: Try creating a test product
+                    console.log('Testing product creation...');
+                    const productData = {
+                        name: 'Test Product',
+                        description: 'Test Description',
+                        category: { id: 1 },
+                        price: 10.99,
+                        pointsPrice: 100,
+                        stockQuantity: 10,
+                        isAvailable: true,
+                        isPointsRedeemable: false
+                    };
+                    
+                    const productResponse = await fetch(`${API_BASE}/products`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${loginData.token}`
+                        },
+                        body: JSON.stringify(productData)
+                    });
+                    
+                    if (productResponse.ok) {
+                        const product = await productResponse.json();
+                        results.innerHTML += '<p>✅ Product creation successful</p>';
+                        results.innerHTML += `<p>Product ID: ${product.id}</p>`;
+                    } else {
+                        const error = await productResponse.text();
+                        results.innerHTML += '<p>❌ Product creation failed</p>';
+                        results.innerHTML += `<p>Error: ${error}</p>';
+                        results.innerHTML += `<p>Status: ${productResponse.status}</p>`;
+                    }
+                    
+                } else {
+                    const error = await loginResponse.text();
+                    results.innerHTML += '<p>❌ Admin login failed</p>';
+                    results.innerHTML += `<p>Error: ${error}</p>`;
+                    results.innerHTML += `<p>Status: ${loginResponse.status}</p>`;
+                }
+                
+            } catch (error) {
+                results.innerHTML += `<p>❌ Network error: ${error.message}</p>`;
+            }
+        }
+        
+        // Run test when page loads
+        window.onload = testAdminSetup;
+    </script>
+</body>
+</html>

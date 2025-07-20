@@ -1,5 +1,8 @@
 package com.wastereborn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,8 +26,9 @@ public class Product {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
+    @JsonIgnoreProperties({"products", "hibernateLazyInitializer", "handler"})
     private Category category;
     
     @NotNull
@@ -47,11 +51,13 @@ public class Product {
     @Column(name = "is_points_redeemable")
     private Boolean isPointsRedeemable = false;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password", "orders", "pickupRequests"})
     private User createdBy;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Review> reviews;
 
     @Column(name = "average_rating")
@@ -125,6 +131,12 @@ public class Product {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    // Helper method to get category name for JSON serialization
+    @JsonProperty("categoryName")
+    public String getCategoryName() {
+        return category != null ? category.getName() : null;
+    }
 
     @PreUpdate
     public void preUpdate() {

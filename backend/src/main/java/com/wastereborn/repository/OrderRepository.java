@@ -38,4 +38,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
     @Query("SELECT o FROM Order o WHERE o.status IN ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED') ORDER BY o.createdAt DESC")
     List<Order> findActiveOrders();
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.createdAt BETWEEN ?1 AND ?2")
+    Long countOrdersByDateRange(LocalDateTime start, LocalDateTime end);
 }

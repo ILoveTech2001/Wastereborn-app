@@ -118,7 +118,7 @@ public class Payment {
     }
     
     public enum PaymentMethod {
-        MOBILE_MONEY, ORANGE_MONEY, CASH_ON_DELIVERY, POINTS, BANK_TRANSFER
+        MTN_MOBILE_MONEY, ORANGE_MONEY, CASH_ON_DELIVERY, POINTS, BANK_TRANSFER
     }
     
     public enum PaymentStatus {

@@ -143,7 +143,17 @@ public class Order {
     
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    
+
+    // Additional getters and setters for OrderService compatibility
+    public OrderStatus getOrderStatus() { return status; }
+    public void setOrderStatus(OrderStatus status) { this.status = status; }
+
+    public LocalDateTime getShippedDate() { return estimatedDeliveryDate; }
+    public void setShippedDate(LocalDateTime shippedDate) { this.estimatedDeliveryDate = shippedDate; }
+
+    public LocalDateTime getDeliveredDate() { return actualDeliveryDate; }
+    public void setDeliveredDate(LocalDateTime deliveredDate) { this.actualDeliveryDate = deliveredDate; }
+
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
@@ -158,7 +168,7 @@ public class Order {
     }
     
     public enum PaymentMethod {
-        MOBILE_MONEY, ORANGE_MONEY, CASH_ON_DELIVERY, POINTS
+        MTN_MOBILE_MONEY, ORANGE_MONEY, CASH_ON_DELIVERY, POINTS
     }
     
     public enum PaymentStatus {

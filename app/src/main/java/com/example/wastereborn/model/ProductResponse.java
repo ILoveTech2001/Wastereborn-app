@@ -32,6 +32,9 @@ public class ProductResponse implements Serializable {
     
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    // Helper method for compatibility
+    public String getCategoryName() { return category; }
     
     public Double getPrice() { return price; }
     public void setPrice(Double price) { this.price = price; }

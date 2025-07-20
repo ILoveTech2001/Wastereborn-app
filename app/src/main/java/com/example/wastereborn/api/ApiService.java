@@ -69,7 +69,7 @@ public interface ApiService {
     @POST("orders")
     Call<ApiResponse> createOrder(@Header("Authorization") String token, @Body Object orderRequest);
     
-    @GET("orders/user")
+    @GET("orders/my-orders")
     Call<List<Object>> getUserOrders(@Header("Authorization") String token);
     
     @GET("orders/{id}")

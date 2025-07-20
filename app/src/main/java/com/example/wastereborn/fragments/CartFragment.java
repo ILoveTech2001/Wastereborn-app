@@ -1,5 +1,6 @@
 package com.example.wastereborn.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.wastereborn.CartAdapter;
 import com.example.wastereborn.CartManager;
+import com.example.wastereborn.PaymentActivity;
 import com.example.wastereborn.Product;
 import com.example.wastereborn.R;
+import com.example.wastereborn.utils.Constants;
 
 import java.util.List;
 
@@ -28,7 +31,7 @@ public class CartFragment extends Fragment {
     private Button btnCheckout;
     private CartAdapter adapter;
 
-    private static final int DELIVERY_FEE = 1000;
+    // Using centralized delivery fee constant
 
     @Nullable
     @Override
@@ -55,8 +58,14 @@ public class CartFragment extends Fragment {
         updatePriceDetails(cartItems);
 
         btnCheckout.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Proceeding to payment screen...", Toast.LENGTH_SHORT).show();
-            // TODO: Navigate to PaymentFragment or PaymentActivity
+            if (cartItems.isEmpty()) {
+                Toast.makeText(getContext(), "Your cart is empty!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Navigate to PaymentActivity
+            Intent intent = new Intent(getContext(), PaymentActivity.class);
+            startActivity(intent);
         });
 
         return view;
@@ -64,10 +73,10 @@ public class CartFragment extends Fragment {
 
     private void updatePriceDetails(List<Product> cartItems) {
         int total = CartManager.getInstance().getTotalCost();
-        int finalAmount = total + DELIVERY_FEE;
+        int finalAmount = total + (int) Constants.DELIVERY_FEE;
 
         textTotal.setText("Subtotal: FCFA " + total);
-        textDelivery.setText("Delivery Fee: FCFA " + DELIVERY_FEE);
+        textDelivery.setText("Delivery Fee: FCFA " + (int) Constants.DELIVERY_FEE);
         textFinalAmount.setText("Total: FCFA " + finalAmount);
     }
 }

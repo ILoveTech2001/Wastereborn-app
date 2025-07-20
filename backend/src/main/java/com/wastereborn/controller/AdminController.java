@@ -6,6 +6,7 @@ import com.wastereborn.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin")
 @CrossOrigin(origins = "*", maxAge = 3600)
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -175,8 +175,13 @@ public class AdminController {
     }
 
     @GetMapping("/orders")
-    public ResponseEntity<List<Order>> getAllOrders() {
+    public ResponseEntity<List<Order>> getAllOrders(Authentication authentication) {
+        System.out.println("🔧 Admin: Getting all orders");
+        System.out.println("🔧 Admin: User: " + authentication.getName());
+        System.out.println("🔧 Admin: Authorities: " + authentication.getAuthorities());
+
         List<Order> orders = orderRepository.findAll();
+        System.out.println("🔧 Admin: Found " + orders.size() + " orders");
         return ResponseEntity.ok(orders);
     }
 
@@ -187,8 +192,13 @@ public class AdminController {
     }
 
     @GetMapping("/pickups")
-    public ResponseEntity<List<PickupRequest>> getAllPickups() {
+    public ResponseEntity<List<PickupRequest>> getAllPickups(Authentication authentication) {
+        System.out.println("🔧 Admin: Getting all pickups");
+        System.out.println("🔧 Admin: User: " + authentication.getName());
+        System.out.println("🔧 Admin: Authorities: " + authentication.getAuthorities());
+
         List<PickupRequest> pickups = pickupRequestRepository.findAll();
+        System.out.println("🔧 Admin: Found " + pickups.size() + " pickups");
         return ResponseEntity.ok(pickups);
     }
 

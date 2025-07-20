@@ -30,17 +30,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+
+        System.out.println("🔐 JWT Filter: " + method + " " + requestURI);
+
+        // Special debugging for admin endpoints
+        if (requestURI.startsWith("/api/admin")) {
+            System.out.println("🔧 ADMIN ENDPOINT DETECTED: " + requestURI);
+        }
+
+        // Debug all headers
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("🔍 Authorization header: " + authHeader);
+
         String token = getTokenFromRequest(request);
 
-        if (token != null && tokenProvider.validateToken(token)) {
-            String email = tokenProvider.getEmailFromToken(token);
+        if (token != null) {
+            System.out.println("🔑 Token found: " + token.substring(0, Math.min(20, token.length())) + "...");
 
-            UserDetails userDetails = userService.loadUserByUsername(email);
-            UsernamePasswordAuthenticationToken authentication = 
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            if (tokenProvider.validateToken(token)) {
+                String email = tokenProvider.getEmailFromToken(token);
+                System.out.println("✅ Valid token for user: " + email);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                UserDetails userDetails = userService.loadUserByUsername(email);
+                System.out.println("🔍 User authorities: " + userDetails.getAuthorities());
+
+                UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("✅ Authentication set for user: " + email + " with authorities: " + userDetails.getAuthorities());
+            } else {
+                System.err.println("❌ Invalid JWT token");
+            }
+        } else {
+            System.out.println("⚠️ No JWT token found in request");
         }
 
         filterChain.doFilter(request, response);

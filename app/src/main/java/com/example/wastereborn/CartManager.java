@@ -42,4 +42,12 @@ public class CartManager {
         }
         return total;
     }
+
+    public double getTotalAmount() {
+        double total = 0.0;
+        for (Product item : cartItems) {
+            total += item.getPrice();
+        }
+        return total;
+    }
 }

@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,9 +45,22 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
+        System.out.println("🔍 ProductAdapter: onBindViewHolder() called for position: " + position);
         Product product = productList.get(position);
+        System.out.println("🔍 ProductAdapter: Binding product: " + product.getName());
 
-        holder.imageProduct.setImageResource(product.getImageResId());
+        // Load image from URL if available, otherwise use resource ID
+        if (product.hasImageUrl()) {
+            System.out.println("🖼️ Loading image from URL: " + product.getImageUrl());
+            Glide.with(holder.itemView.getContext())
+                    .load(product.getImageUrl())
+                    .placeholder(R.mipmap.sample_product)
+                    .error(R.mipmap.sample_product)
+                    .into(holder.imageProduct);
+        } else {
+            System.out.println("🖼️ Using default image resource");
+            holder.imageProduct.setImageResource(product.getImageResId());
+        }
         holder.textProductName.setText(product.getName());
         holder.textPrice.setText("FCFA " + product.getPrice());
 
@@ -70,7 +85,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        int count = productList.size();
+        System.out.println("🔍 ProductAdapter: getItemCount() called, returning: " + count);
+        return count;
     }
 
     // Used externally to apply a full filtered list
@@ -79,20 +96,35 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         notifyDataSetChanged();
     }
 
+    // Update the full product list and refresh display
+    public void updateProductList(List<Product> newProductList) {
+        this.fullProductList = new ArrayList<>(newProductList);
+        this.productList = new ArrayList<>(newProductList);
+        notifyDataSetChanged();
+    }
+
     // ✅ Method to filter based on category
     public void updateFilter(String category) {
+        System.out.println("🔍 ProductAdapter: Filtering by category: " + category);
+        System.out.println("🔍 ProductAdapter: Full product list size: " + fullProductList.size());
+
         if (category.equalsIgnoreCase("All")) {
             productList = new ArrayList<>(fullProductList);
+            System.out.println("🔍 ProductAdapter: Showing all products: " + productList.size());
         } else {
             List<Product> filtered = new ArrayList<>();
             for (Product p : fullProductList) {
+                System.out.println("🔍 ProductAdapter: Checking product: " + p.getName() + " | Category: " + p.getCategory());
                 if (p.getCategory().equalsIgnoreCase(category)) {
                     filtered.add(p);
+                    System.out.println("🔍 ProductAdapter: Product matches filter");
                 }
             }
             productList = filtered;
+            System.out.println("🔍 ProductAdapter: Filtered products: " + productList.size());
         }
         notifyDataSetChanged();
+        System.out.println("🔍 ProductAdapter: notifyDataSetChanged() called");
     }
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {

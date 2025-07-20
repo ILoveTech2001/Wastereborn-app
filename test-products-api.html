@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Products API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .product-card { border: 1px solid #eee; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .product-name { font-weight: bold; font-size: 16px; }
+        .product-details { margin: 5px 0; }
+        .available { color: green; }
+        .unavailable { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Products API</h1>
+    
+    <div class="test-section">
+        <h2>Direct API Test</h2>
+        <button onclick="testProductsAPI()">Test Products API</button>
+        <div id="api-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Raw Response</h2>
+        <button onclick="showRawResponse()">Show Raw JSON</button>
+        <pre id="raw-response" style="background: #f5f5f5; padding: 10px; border-radius: 5px; max-height: 300px; overflow-y: auto;"></pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let lastResponse = null;
+
+        async function testProductsAPI() {
+            const result = document.getElementById('api-result');
+            result.innerHTML = '<p class="info">Testing products API...</p>';
+            
+            try {
+                console.log('Making request to:', `${API_BASE}/products/public/all`);
+                
+                const response = await fetch(`${API_BASE}/products/public/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (response.ok) {
+                    const products = await response.json();
+                    lastResponse = products;
+                    
+                    console.log('Products received:', products);
+                    
+                    result.innerHTML = `
+                        <p class="success">✅ Products API working!</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Products found:</strong> ${products.length}</p>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            ${products.map(product => `
+                                <div class="product-card">
+                                    <div class="product-name">${product.name}</div>
+                                    <div class="product-details">Category: ${product.categoryName || 'N/A'}</div>
+                                    <div class="product-details">Price: ${product.price} FCFA</div>
+                                    <div class="product-details">Stock: ${product.stockQuantity || 0}</div>
+                                    <div class="product-details ${product.isAvailable ? 'available' : 'unavailable'}">
+                                        Available: ${product.isAvailable ? 'Yes' : 'No'}
+                                    </div>
+                                    <div class="product-details">Points Redeemable: ${product.isPointsRedeemable ? 'Yes' : 'No'}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    console.error('API Error:', response.status, errorText);
+                    
+                    result.innerHTML = `
+                        <p class="error">❌ API Error!</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Error:</strong> ${errorText}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Network Error:', error);
+                
+                result.innerHTML = `
+                    <p class="error">❌ Network Error!</p>
+                    <p><strong>Error Type:</strong> ${error.constructor.name}</p>
+                    <p><strong>Message:</strong> ${error.message}</p>
+                    <p><strong>Stack:</strong></p>
+                    <pre style="background: #ffe6e6; padding: 10px; border-radius: 5px;">${error.stack}</pre>
+                `;
+            }
+        }
+
+        function showRawResponse() {
+            const rawDiv = document.getElementById('raw-response');
+            if (lastResponse) {
+                rawDiv.textContent = JSON.stringify(lastResponse, null, 2);
+            } else {
+                rawDiv.textContent = 'No response data available. Run the API test first.';
+            }
+        }
+
+        // Auto-run test on page load
+        window.onload = function() {
+            setTimeout(testProductsAPI, 1000);
+        };
+    </script>
+</body>
+</html>

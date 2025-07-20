@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="@color/background_light">
+
+    <!-- Result Icon -->
+    <ImageView
+        android:id="@+id/iv_result_icon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_check_circle"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Result Title -->
+    <TextView
+        android:id="@+id/tv_result_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Payment Successful!"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_green"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
+
+    <!-- Result Message -->
+    <TextView
+        android:id="@+id/tv_result_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your payment has been processed successfully. Your order will be delivered within 2-3 business days."
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp" />
+
+    <!-- Order Details Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Order Details"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tv_order_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Order ID: #12345\nAmount: 5000 FCFA\nStatus: Confirmed"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_view_orders"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="View My Orders"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/primary_green"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btn_back_to_home"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Back to Home"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:textColor="@color/primary_green" />
+
+    </LinearLayout>
+
+</LinearLayout>

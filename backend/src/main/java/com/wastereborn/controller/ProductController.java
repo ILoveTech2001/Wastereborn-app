@@ -1,5 +1,6 @@
 package com.wastereborn.controller;
 
+import com.wastereborn.dto.ProductDTO;
 import com.wastereborn.model.Product;
 import com.wastereborn.model.User;
 import com.wastereborn.service.ProductService;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -24,8 +26,20 @@ public class ProductController {
     private UserService userService;
 
     @GetMapping("/public/all")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAvailableProducts());
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+        try {
+            List<Product> products = productService.getAvailableProducts();
+            List<ProductDTO> productDTOs = products.stream()
+                .map(ProductDTO::new)
+                .collect(Collectors.toList());
+
+            System.out.println("📦 Returning " + productDTOs.size() + " products to client");
+            return ResponseEntity.ok(productDTOs);
+        } catch (Exception e) {
+            System.err.println("❌ Error in getAllProducts: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @GetMapping("/public/categories")
@@ -55,14 +69,34 @@ public class ProductController {
         return ResponseEntity.ok(productService.getPointsRedeemableProducts());
     }
 
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Product>> getAllProductsForAdmin() {
+        return ResponseEntity.ok(productService.getAllProducts());
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> createProduct(@RequestBody Product product, Authentication authentication) {
-        User user = userService.findByEmail(authentication.getName())
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        Product createdProduct = productService.createProduct(product, user);
-        return ResponseEntity.ok(createdProduct);
+        try {
+            System.out.println("Creating product: " + product.getName());
+            System.out.println("Authenticated user: " + authentication.getName());
+            System.out.println("User authorities: " + authentication.getAuthorities());
+
+            User user = userService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+            System.out.println("User role: " + user.getRole());
+
+            Product createdProduct = productService.createProduct(product, user);
+            System.out.println("Product created successfully with ID: " + createdProduct.getId());
+
+            return ResponseEntity.ok(createdProduct);
+        } catch (Exception e) {
+            System.err.println("Error creating product: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @PutMapping("/{id}")

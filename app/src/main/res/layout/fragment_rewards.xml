@@ -1,44 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background_light">
+    android:background="@color/background_light"
+    android:fillViewport="true">
 
-    <!-- Header -->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Modern Header with Gradient -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/auth_gradient_background"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:background="@color/background_white"
-        android:elevation="4dp">
+        android:padding="24dp"
+        android:paddingBottom="32dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rewards &amp; Points"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="16dp" />
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="20dp" />
 
-        <!-- Total Points Card -->
+        <!-- Points Display Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp"
-            android:backgroundTint="@color/primary_green">
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="12dp"
+            android:backgroundTint="@android:color/white">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="20dp"
+                android:padding="24dp"
                 android:gravity="center_vertical">
 
+                <!-- Points Info -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -48,29 +54,46 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Available Points"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:alpha="0.9" />
+                        android:text="Your Points"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/text_total_points"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1,250"
-                        android:textColor="@android:color/white"
-                        android:textSize="32sp"
+                        android:textColor="@color/primary_green"
+                        android:textSize="36sp"
                         android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Keep recycling to earn more!"
+                        android:textColor="@color/text_hint"
+                        android:textSize="12sp"
                         android:layout_marginTop="4dp" />
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_star"
-                    android:tint="@android:color/white"
-                    android:alpha="0.8" />
+                <!-- Points Icon -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    app:cardCornerRadius="32dp"
+                    app:cardElevation="0dp"
+                    android:backgroundTint="@color/primary_green_light">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_star"
+                        android:tint="@color/primary_green" />
+
+                </androidx.cardview.widget.CardView>
 
             </LinearLayout>
 
@@ -78,18 +101,201 @@
 
     </LinearLayout>
 
-    <!-- Rewards List -->
+    <!-- Main Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="24dp">
 
+        <!-- Available Rewards Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Available Rewards"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Sample Reward Cards -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="20dp"
+                android:gravity="center_vertical">
+
+                <!-- Reward Icon -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="0dp"
+                    android:backgroundTint="@color/secondary_blue_light">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_marketplace"
+                        android:tint="@color/secondary_blue" />
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Reward Details -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="$5 Store Credit"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Use in marketplace"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+                <!-- Points Required -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="500"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary_green" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="points"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_hint" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Second Reward Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="20dp"
+                android:gravity="center_vertical">
+
+                <!-- Reward Icon -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="0dp"
+                    android:backgroundTint="@color/accent_orange">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_pickup"
+                        android:tint="@android:color/white" />
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Reward Details -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Free Pickup"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="One free waste pickup"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="4dp" />
+
+                </LinearLayout>
+
+                <!-- Points Required -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1000"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary_green" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="points"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_hint" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Reward History Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reward History"
-            android:textSize="18sp"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
             android:layout_marginBottom="16dp" />
@@ -97,12 +303,13 @@
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_rewards"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
                 android:clipToPadding="false" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -110,3 +317,5 @@
     </LinearLayout>
 
 </LinearLayout>
+
+</ScrollView>

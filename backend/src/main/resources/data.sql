@@ -33,9 +33,9 @@ ON CONFLICT DO NOTHING;
 -- Insert sample orders
 INSERT INTO orders (user_id, order_number, total_amount, delivery_fee, delivery_address, delivery_city, delivery_phone, status, payment_method, payment_status, estimated_delivery_date, created_at, updated_at) 
 VALUES 
-(2, 'WR' || EXTRACT(EPOCH FROM NOW())::bigint, 5500.0, 500.0, 'Bastos Quarter, House 123', 'Yaoundé', '987654321', 'DELIVERED', 'MOBILE_MONEY', 'PAID', NOW() + INTERVAL '3 days', NOW() - INTERVAL '1 week', NOW() - INTERVAL '1 week'),
-(3, 'WR' || (EXTRACT(EPOCH FROM NOW())::bigint + 1), 3800.0, 500.0, 'Melen Quarter, Apartment 45', 'Yaoundé', '555666777', 'SHIPPED', 'ORANGE_MONEY', 'PAID', NOW() + INTERVAL '2 days', NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days'),
-(2, 'WR' || (EXTRACT(EPOCH FROM NOW())::bigint + 2), 2000.0, 500.0, 'Bastos Quarter, House 123', 'Yaoundé', '987654321', 'PENDING', 'MOBILE_MONEY', 'PENDING', NOW() + INTERVAL '5 days', NOW(), NOW())
+(2, 'WR' || EXTRACT(EPOCH FROM NOW())::bigint, 5500.0, 1000.0, 'Bastos Quarter, House 123', 'Yaoundé', '987654321', 'DELIVERED', 'MTN_MOBILE_MONEY', 'PAID', NOW() + INTERVAL '3 days', NOW() - INTERVAL '1 week', NOW() - INTERVAL '1 week'),
+(3, 'WR' || (EXTRACT(EPOCH FROM NOW())::bigint + 1), 3800.0, 1000.0, 'Melen Quarter, Apartment 45', 'Yaoundé', '555666777', 'SHIPPED', 'ORANGE_MONEY', 'PAID', NOW() + INTERVAL '2 days', NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days'),
+(2, 'WR' || (EXTRACT(EPOCH FROM NOW())::bigint + 2), 2000.0, 1000.0, 'Bastos Quarter, House 123', 'Yaoundé', '987654321', 'PENDING', 'MTN_MOBILE_MONEY', 'PENDING', NOW() + INTERVAL '5 days', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Insert sample order items
